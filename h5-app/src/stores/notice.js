@@ -17,8 +17,13 @@ export const useNoticeStore = defineStore('notice', () => {
   }
 
   async function getNoticeById(id) {
-    const res = await noticeApi.getNoticeById(id)
-    return res.data
+    loading.value = true
+    try {
+      const res = await noticeApi.getNoticeById(id)
+      return res.data
+    } finally {
+      loading.value = false
+    }
   }
 
   return { noticeList, loading, fetchNotices, getNoticeById }

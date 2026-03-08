@@ -5,6 +5,7 @@ import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils'
 
 import Empty from '@/components/common/Empty.vue'
+import Loading from '@/components/common/Loading.vue'
 import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -29,6 +30,8 @@ onMounted(() => {
 
 <template>
   <div>
+    <Loading :visible="cartStore.loading" />
+
     <div v-if="cartStore.items.length" class="space-y-4 px-4 py-4 pb-32">
       <div
         v-for="item in cartStore.items"

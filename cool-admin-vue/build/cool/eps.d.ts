@@ -1732,6 +1732,11 @@ declare namespace Eps {
 		list: DictTypeEntity[];
 	}
 
+	interface NoticeNewsPageResponse {
+		pagination: PagePagination;
+		list: NoticeNewsEntity[];
+	}
+
 	interface PluginInfoPageResponse {
 		pagination: PagePagination;
 		list: PluginInfoEntity[];
@@ -1820,11 +1825,6 @@ declare namespace Eps {
 	interface UserWithdrawPageResponse {
 		pagination: PagePagination;
 		list: UserWithdrawEntity[];
-	}
-
-	interface NoticeNewsPageResponse {
-		pagination: PagePagination;
-		list: NoticeNewsEntity[];
 	}
 
 	interface BaseCoding {
@@ -2497,6 +2497,64 @@ declare namespace Eps {
 		 * 分页查询
 		 */
 		page(data?: any): Promise<DictTypePageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface NoticeNews {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<NoticeNewsEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<NoticeNewsEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<NoticeNewsPageResponse>;
 
 		/**
 		 * 新增
@@ -3573,64 +3631,6 @@ declare namespace Eps {
 		request: Request;
 	}
 
-	interface NoticeNews {
-		/**
-		 * 删除
-		 */
-		delete(data?: any): Promise<any>;
-
-		/**
-		 * 修改
-		 */
-		update(data?: any): Promise<any>;
-
-		/**
-		 * 单个信息
-		 */
-		info(data?: any): Promise<NoticeNewsEntity>;
-
-		/**
-		 * 列表查询
-		 */
-		list(data?: any): Promise<NoticeNewsEntity[]>;
-
-		/**
-		 * 分页查询
-		 */
-		page(data?: any): Promise<NoticeNewsPageResponse>;
-
-		/**
-		 * 新增
-		 */
-		add(data?: any): Promise<any>;
-
-		/**
-		 * 权限标识
-		 */
-		permission: {
-			delete: string;
-			update: string;
-			info: string;
-			list: string;
-			page: string;
-			add: string;
-		};
-
-		/**
-		 * 权限状态
-		 */
-		_permission: {
-			delete: boolean;
-			update: boolean;
-			info: boolean;
-			list: boolean;
-			page: boolean;
-			add: boolean;
-		};
-
-		request: Request;
-	}
-
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -3661,6 +3661,7 @@ declare namespace Eps {
 		};
 		demo: { goods: DemoGoods; tenant: DemoTenant };
 		dict: { info: DictInfo; type: DictType };
+		notice: { news: NoticeNews };
 		plugin: { info: PluginInfo };
 		recycle: { data: RecycleData };
 		shop: {
@@ -3682,6 +3683,5 @@ declare namespace Eps {
 			walletlog: UserWalletlog;
 			withdraw: UserWithdraw;
 		};
-		notice: { news: NoticeNews };
 	};
 }
