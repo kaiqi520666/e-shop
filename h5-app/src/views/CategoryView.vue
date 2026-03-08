@@ -6,6 +6,7 @@ import { useCartStore } from '@/stores/cart'
 import { formatPrice } from '@/utils'
 import { ShoppingCart, Wind, Wine, Cigarette } from 'lucide-vue-next'
 import Empty from '@/components/common/Empty.vue'
+import Loading from '@/components/common/Loading.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -120,6 +121,8 @@ function addToCart(product) {
 
 <template>
   <div class="pb-4">
+    <Loading :visible="productStore.loading || productStore.categoryList.length === 0" />
+
     <!-- Category Tabs -->
     <div class="sticky top-0 z-40 border-b border-border bg-bg-primary/95 backdrop-blur-sm">
       <!-- Main category tabs with sliding indicator -->

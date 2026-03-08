@@ -6,6 +6,7 @@ import { useCartStore } from '@/stores/cart'
 import { useUserStore } from '@/stores/user'
 import { useReviewStore } from '@/stores/review'
 import { formatPrice } from '@/utils'
+import Loading from '@/components/common/Loading.vue'
 import {
   ShoppingCart,
   ChevronRight,
@@ -30,15 +31,18 @@ const userStore = useUserStore()
 const toast = inject('toast')
 
 const currentBanner = ref(0)
+const loading = ref(true)
 let bannerTimer = null
 
 onMounted(async () => {
+  loading.value = true
   // 加载产品数据
   await Promise.all([
     productStore.fetchProducts(),
     productStore.fetchCategories(),
     productStore.fetchBanners(),
   ])
+  loading.value = false
 
   // 启动 banner 轮播
   bannerTimer = setInterval(() => {
@@ -94,6 +98,8 @@ const trustItems = [
 
 <template>
   <div class="pb-4">
+    <Loading :visible="loading" />
+
     <!-- Banner -->
     <div
       class="relative h-56 overflow-hidden rounded-b-2xl sm:h-64 md:h-72 cursor-pointer"
@@ -141,14 +147,14 @@ const trustItems = [
         </p>
         <div class="mt-2 h-px w-12 bg-gold/70" aria-hidden="true" />
         <div class="mt-3 flex items-center gap-2">
-        <button
-          v-for="(_, idx) in productStore.banners"
-          :key="idx"
-          class="h-1 rounded-full transition-all duration-300 cursor-pointer"
-          :class="currentBanner === idx ? 'w-8 bg-gold' : 'w-4 bg-white/40'"
-          :aria-label="`切换到第${idx + 1}张横幅`"
-          @click.stop="currentBanner = idx"
-        />
+          <button
+            v-for="(_, idx) in productStore.banners"
+            :key="idx"
+            class="h-1 rounded-full transition-all duration-300 cursor-pointer"
+            :class="currentBanner === idx ? 'w-8 bg-gold' : 'w-4 bg-white/40'"
+            :aria-label="`切换到第${idx + 1}张横幅`"
+            @click.stop="currentBanner = idx"
+          />
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useOrderStore } from '@/stores/order'
 import { maskPhone, formatPrice, maskAddress } from '@/utils'
+import Loading from '@/components/common/Loading.vue'
 
 import {
   Copy,
@@ -37,6 +38,7 @@ const orderStore = useOrderStore()
 const toast = inject('toast')
 
 const user = userStore.currentUser
+const loading = ref(true)
 
 // 加载数据
 onMounted(async () => {
@@ -47,6 +49,7 @@ onMounted(async () => {
       userStore.fetchTeamCount(),
     ])
   }
+  loading.value = false
 })
 
 // 累计消费
@@ -170,6 +173,8 @@ const quickEntries = [
 
 <template>
   <div>
+    <Loading :visible="loading" />
+
     <!-- Hero: gradient + avatar + badge -->
     <div
       class="relative overflow-hidden bg-[radial-gradient(ellipse_at_top,rgba(201,168,76,0.12),transparent_60%)] pb-8 pt-6"
