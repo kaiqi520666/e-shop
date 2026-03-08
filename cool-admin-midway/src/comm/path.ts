@@ -13,7 +13,7 @@ const getKeys = () => {
   const keys = configContent.match(/keys: '([^']+)'/)?.[1];
   return keys;
 };
-const PROD_UPLOAD_PATH = '/www/wwwroot/e-commerce/images/upload';
+const PROD_UPLOAD_PATH = '/www/wwwroot/e-shop/images/upload';
 const isProd = process.env.NODE_ENV === 'production';
 /**
  * 项目数据目录
