@@ -157,6 +157,18 @@ function copyWallet() {
     })
 }
 
+// 复制转账金额
+function copyAmount() {
+  navigator.clipboard
+    .writeText(total)
+    .then(() => {
+      window.$toast?.success('金额已复制')
+    })
+    .catch(() => {
+      window.$toast?.info('请手动复制金额')
+    })
+}
+
 // 二维码链接
 const qrUrl = computed(
   () => `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${walletAddress}`,
@@ -265,7 +277,23 @@ const topRatedProducts = computed(() => {
           v-if="localStatus === 0"
           class="mb-6 rounded-xl border border-orange-500/30 bg-orange-500/5 p-4"
         >
-          <p class="mb-3 text-xs text-orange-400">请向以下地址转账 {{ total }} USDT (TRC20)</p>
+          <!-- 转账金额 -->
+          <div class="mb-4 rounded-lg bg-bg-card p-3">
+            <p class="mb-1 text-xs text-text-muted text-center">转账金额</p>
+            <div class="flex items-center justify-center gap-2">
+              <span class="text-2xl font-bold text-orange-400">{{ total }}</span>
+              <span class="text-sm font-medium text-orange-400">USDT</span>
+              <button
+                type="button"
+                class="text-orange-400 transition-colors hover:text-orange-300 cursor-pointer"
+                @click="copyAmount"
+              >
+                <Copy class="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <p class="mb-3 text-xs text-orange-400 text-center">请向以下地址转账 (TRC20)</p>
 
           <!-- 二维码 -->
           <div class="mb-4 flex justify-center">

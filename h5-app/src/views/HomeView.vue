@@ -36,6 +36,7 @@ let bannerTimer = null
 
 onMounted(async () => {
   loading.value = true
+  console.log(productStore.productList.length, 'productStore.productList.length')
   // 加载产品数据
   if (productStore.productList.length === 0) {
     await Promise.all([
@@ -43,7 +44,6 @@ onMounted(async () => {
       productStore.fetchCategories(),
       productStore.fetchBanners(),
       appStore.fetchConfigList(),
-      userStore.fetchDirectTeamCount(),
     ])
   }
   loading.value = false

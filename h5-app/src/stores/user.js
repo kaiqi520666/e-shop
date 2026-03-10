@@ -27,6 +27,7 @@ export const useUserStore = defineStore(
         // 同步购物车
         const cartStore = useCartStore()
         await cartStore.fetchCart()
+        await fetchDirectTeamCount()
         return { success: true }
       } catch (error) {
         return { success: false, message: error.message }

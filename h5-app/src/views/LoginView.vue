@@ -20,7 +20,6 @@ async function handleLogin() {
   if (!password.value) return toast.error('请输入密码')
 
   loading.value = true
-  await delay()
   const result = await userStore.login(username.value.trim(), password.value)
   loading.value = false
 
