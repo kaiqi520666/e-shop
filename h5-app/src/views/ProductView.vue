@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useCartStore } from '@/stores/cart'
 import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/app'
 import { useReviewStore } from '@/stores/review'
 import { formatPrice } from '@/utils'
 import Header from '@/components/layout/Header.vue'
@@ -26,11 +27,16 @@ const router = useRouter()
 const productStore = useProductStore()
 const cartStore = useCartStore()
 const userStore = useUserStore()
+const appStore = useAppStore()
 const reviewStore = useReviewStore()
 const toast = inject('toast')
 
 const product = ref(null)
 const quantity = ref(1)
+
+function getPriceUSDT(product) {
+  return appStore.usdt_rate ? product.priceRMB / appStore.usdt_rate : 0
+}
 
 // 图片轮播相关
 const currentImageIndex = ref(0)
@@ -102,6 +108,8 @@ async function submitReview() {
 }
 
 onMounted(async () => {
+  appStore.fetchConfigList()
+
   product.value = await productStore.getById(route.params.id)
   allImages.value = [product.value.image, ...product.value.images]
   hasMultipleImages.value = allImages.value.length > 1
@@ -233,7 +241,7 @@ function buyNow() {
       <h1 class="mb-3 text-xl font-medium">{{ product.name }}</h1>
 
       <div class="mb-4 flex items-baseline gap-3">
-        <span class="text-2xl font-bold text-gold">{{ formatPrice(product.priceUSDT) }}</span>
+        <span class="text-2xl font-bold text-gold">{{ formatPrice(getPriceUSDT(product)) }}</span>
         <span class="text-sm text-text-muted line-through">{{
           formatPrice(product.priceRMB, 'RMB')
         }}</span>

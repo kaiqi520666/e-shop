@@ -33,7 +33,6 @@ export class ShopGoodsService extends BaseService {
         'name',
         'categoryId',
         'priceRMB',
-        'priceUSDT',
         'stock',
         'tags',
         'image',

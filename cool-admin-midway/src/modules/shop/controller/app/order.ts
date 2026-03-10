@@ -6,7 +6,7 @@ import { ShopOrderService } from '../../service/order';
   api: ['page'],
   entity: ShopOrderEntity,
   service: ShopOrderService,
-  serviceApis: ['createOrder', 'getList', 'getDetail'],
+  serviceApis: ['createOrder', 'getList', 'getDetail', 'getPayStatus'],
   pageQueryOp: {
     keyWordLikeFields: ['a.orderNo'],
     fieldEq: ['a.status'],

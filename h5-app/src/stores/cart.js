@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useUserStore } from './user'
+import { useAppStore } from './app'
 import { cartApi } from '@/api/modules/shop/cart.api'
 
 export const useCartStore = defineStore(
@@ -9,8 +10,10 @@ export const useCartStore = defineStore(
     const items = ref([])
     const loading = ref(false)
 
+    const appStore = useAppStore()
+
     const totalUSDT = computed(() =>
-      items.value.reduce((sum, item) => sum + Number(item.priceUSDT) * item.quantity, 0),
+      items.value.reduce((sum, item) => sum + (Number(item.priceRMB) / appStore.usdt_rate) * item.quantity, 0),
     )
 
     const totalRMB = computed(() =>

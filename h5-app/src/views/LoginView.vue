@@ -37,7 +37,7 @@ async function handleLogin() {
 <template>
   <div class="flex min-h-dvh flex-col items-center justify-center px-6">
     <div class="w-full max-w-sm">
-      <h1 class="mb-2 text-center font-heading text-3xl font-bold text-gold">尊享商城</h1>
+      <img src="/logo.png" alt="Logo" class="mx-auto mb-6 h-32 w-auto" />
       <p class="mb-10 text-center text-sm text-text-secondary">登录您的账户</p>
 
       <form @submit.prevent="handleLogin" class="space-y-5">
@@ -88,7 +88,10 @@ async function handleLogin() {
 
       <p class="mt-6 text-center text-sm text-text-secondary">
         还没有账户？
-        <router-link to="/register" class="text-gold transition-colors duration-200 hover:text-gold-light cursor-pointer">
+        <router-link
+          to="/register"
+          class="text-gold transition-colors duration-200 hover:text-gold-light cursor-pointer"
+        >
           立即注册
         </router-link>
       </p>

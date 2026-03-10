@@ -18,6 +18,7 @@ import * as LocalConfig from './config/config.local';
 import * as ProdConfig from './config/config.prod';
 import * as cool from '@cool-midway/core';
 import * as upload from '@midwayjs/upload';
+import * as axios from '@midwayjs/axios';
 // import * as task from '@cool-midway/task';
 // import * as rpc from '@cool-midway/rpc';
 
@@ -43,6 +44,7 @@ import * as upload from '@midwayjs/upload';
     // rpc,
     // 任务与队列
     // task,
+    axios,
     {
       component: info,
       enabledEnvironment: ['local', 'prod'],

@@ -1,7 +1,8 @@
 <script setup>
-import { inject, onMounted } from 'vue'
+import { inject, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
+import { useAppStore } from '@/stores/app'
 import { formatPrice } from '@/utils'
 
 import Empty from '@/components/common/Empty.vue'
@@ -10,7 +11,12 @@ import { Minus, Plus, Trash2, ShoppingCart } from 'lucide-vue-next'
 
 const router = useRouter()
 const cartStore = useCartStore()
+const appStore = useAppStore()
 const toast = inject('toast')
+
+function getPriceUSDT(item) {
+  return appStore.usdt_rate ? item.priceRMB / appStore.usdt_rate : 0
+}
 
 function removeItem(id) {
   cartStore.removeItem(id)
@@ -24,6 +30,9 @@ function checkout() {
 
 // 页面加载时获取购物车数据
 onMounted(() => {
+  if (appStore.configList.length === 0) {
+    appStore.fetchConfigList()
+  }
   cartStore.fetchCart()
 })
 </script>
@@ -70,13 +79,13 @@ onMounted(() => {
           <div class="mt-2 flex flex-col gap-2">
             <div class="flex items-end justify-between">
               <div>
-                <p class="text-lg font-bold text-gold">{{ formatPrice(item.priceUSDT) }}</p>
-                <p class="text-xs text-text-muted line-through">
+                <p class="text-lg font-bold text-gold">{{ formatPrice(getPriceUSDT(item)) }}</p>
+                <p class="text-xs text-text-muted">
                   {{ formatPrice(item.priceRMB, 'RMB') }}
                 </p>
               </div>
               <p class="text-right text-sm font-medium text-gold">
-                小计 {{ formatPrice(item.priceUSDT * item.quantity) }}
+                小计 {{ formatPrice(getPriceUSDT(item) * item.quantity) }}
               </p>
             </div>
 

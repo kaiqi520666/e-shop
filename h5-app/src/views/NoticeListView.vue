@@ -12,8 +12,10 @@ const noticeStore = useNoticeStore()
 
 const refreshing = ref(false)
 
-onMounted(() => {
-  noticeStore.fetchNotices()
+onMounted(async () => {
+  if (noticeStore.noticeList.length === 0) {
+    await noticeStore.fetchNotices()
+  }
 })
 
 async function onRefresh() {

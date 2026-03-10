@@ -22,10 +22,15 @@ export class UserRechargeEntity extends BaseEntity {
   @Column({ comment: '充值订单号', length: 32 })
   orderNo: string;
 
+  @Index({ unique: true })
+  @Column({ comment: 'Epusdt交易号', length: 64, nullable: true })
+  tradeId: string;
+
   @Column({
-    comment: '状态 0=待充值 1=成功 2=超时',
+    comment: '状态',
     type: 'tinyint',
     default: 0,
+    dict: ['待充值', '成功', '超时'],
   })
   status: number;
 

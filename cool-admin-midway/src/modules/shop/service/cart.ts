@@ -136,7 +136,6 @@ export class ShopCartService extends BaseService {
         'b.name as name',
         'b.image as image',
         'b.priceRMB as priceRMB',
-        'b.priceUSDT as priceUSDT',
         'b.stock as stock',
       ])
       .innerJoin('shop_goods', 'b', 'a.productId = b.id AND b.status = 1')

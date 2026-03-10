@@ -19,5 +19,6 @@ export const userApi = {
   updateAddress: (data) => request.post('/app/user/address/update', data),
   deleteAddress: (ids) => request.post('/app/user/address/delete', { ids }),
   getAddressInfo: (id) => request.get(`/app/user/address/info?id=${id}`),
-  getSubUserCount: () => request.get('/app/user/agent/getSubUserCount'),
+  getDirectTeamCount: () => request.get('/app/user/agent/directTeamCount'),
+  getTeamCount: () => request.get('/app/user/agent/teamCount'),
 }

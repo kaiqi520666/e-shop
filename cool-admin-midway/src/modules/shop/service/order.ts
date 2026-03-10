@@ -1,4 +1,4 @@
-import { Provide, Inject } from '@midwayjs/core';
+import { Provide, Inject, HttpClient } from '@midwayjs/core';
 import {
   BaseService,
   CoolCommException,
@@ -13,6 +13,8 @@ import { ShopGoodsEntity } from '../entity/goods';
 import { UserInfoEntity } from '../../user/entity/info';
 import { UserCommissionEntity } from '../../user/entity/commission';
 import { UserTransactionService } from '../../user/service/transaction';
+import { UserRechargeService } from '../../user/service/recharge';
+import { AppConfigEntity } from '../../app/entity/config';
 
 @Provide()
 export class ShopOrderService extends BaseService {
@@ -34,8 +36,14 @@ export class ShopOrderService extends BaseService {
   @InjectEntityModel(UserCommissionEntity)
   commissionEntity: Repository<UserCommissionEntity>;
 
+  @InjectEntityModel(AppConfigEntity)
+  appConfigEntity: Repository<AppConfigEntity>;
+
   @Inject()
   userTransactionService: UserTransactionService;
+
+  @Inject()
+  userRechargeService: UserRechargeService;
 
   @Inject()
   ctx;
@@ -60,12 +68,30 @@ export class ShopOrderService extends BaseService {
 
   /**
    * 创建订单
-   * @param param { address: string }
+   * @param param { address: string, payType?: number }
+   * payType: 1=余额支付 2=USDT扫码
    */
   @CoolTransaction({ connectionName: 'default' })
-  async createOrder(param: { address: string }, queryRunner?: QueryRunner) {
+  async createOrder(
+    param: {
+      address: string;
+      payType?: number;
+      phone?: string;
+      contact?: string;
+    },
+    queryRunner?: QueryRunner
+  ) {
     const userId = this.getCurrentUserId();
-    const { address } = param;
+    const { address, payType = 1, phone, contact } = param;
+
+    // 0. 获取 USDT 汇率配置
+    const usdtRateConfig = await this.appConfigEntity.findOne({
+      where: { cKey: 'usdt_rate' },
+    });
+    const usdtRate = Number(usdtRateConfig?.cValue) || 0;
+    if (!usdtRate) {
+      throw new CoolCommException('USDT汇率未配置，请联系管理员');
+    }
 
     // 1. 查询当前用户购物车记录，JOIN shop_goods 获取商品信息
     const cartItems = await this.cartEntity
@@ -76,7 +102,7 @@ export class ShopOrderService extends BaseService {
         'a.quantity as quantity',
         'b.name as productName',
         'b.image as productImage',
-        'b.priceUSDT as priceUSDT',
+        'b.priceRMB as priceRMB',
         'b.stock as stock',
         'b.status as status',
       ])
@@ -99,42 +125,206 @@ export class ShopOrderService extends BaseService {
       }
     }
 
-    // 4. 计算 totalUSDT
+    // 4. 计算 totalUSDT（使用 priceRMB / usdtRate 计算）
     let totalUSDT = 0;
     const orderItems = cartItems.map(item => {
-      const itemTotal = Number((item.priceUSDT * item.quantity).toFixed(4));
+      // 根据汇率计算 USDT 价格
+      const calculatedPriceUSDT = Number((item.priceRMB / usdtRate).toFixed(4));
+      const itemTotal = Number(
+        (calculatedPriceUSDT * item.quantity).toFixed(4)
+      );
       totalUSDT = Number((totalUSDT + itemTotal).toFixed(4));
       return {
         productId: item.productId,
         productName: item.productName,
         productImage: item.productImage,
-        priceUSDT: item.priceUSDT,
+        priceUSDT: calculatedPriceUSDT,
         quantity: item.quantity,
         subtotalUSDT: itemTotal,
       };
     });
 
-    // 5. 校验用户 balance >= totalUSDT
+    // 5. 校验用户 balance >= totalUSDT (仅余额支付需要校验)
     const user = await this.userInfoEntity.findOneBy({ id: Equal(userId) });
     if (!user) {
       throw new CoolCommException('用户不存在');
     }
-    if (Number(user.balance) < totalUSDT) {
-      throw new CoolCommException('余额不足');
-    }
 
-    // 6. 扣减用户 balance，增加 frozen (balance -= totalUSDT, frozen += totalUSDT)
-    const balanceBefore = Number(user.balance);
-    const newBalance = Number(user.balance) - totalUSDT;
-    const newFrozen = Number(user.frozen) + totalUSDT;
-    await queryRunner.manager.update(
-      UserInfoEntity,
-      { id: userId },
-      { balance: newBalance, frozen: newFrozen }
+    // 区分处理：余额支付 vs USDT扫码
+    if (payType === 1) {
+      // 余额支付：校验并扣款
+      if (Number(user.balance) < totalUSDT) {
+        throw new CoolCommException('余额不足');
+      }
+
+      // 6. 扣减用户 balance，增加 frozen (balance -= totalUSDT, frozen += totalUSDT)
+      const balanceBefore = Number(user.balance);
+      const newBalance = Number(user.balance) - totalUSDT;
+      const newFrozen = Number(user.frozen) + totalUSDT;
+      await queryRunner.manager.update(
+        UserInfoEntity,
+        { id: userId },
+        { balance: newBalance, frozen: newFrozen }
+      );
+
+      // 7. 扣减每个商品 stock
+      for (const item of cartItems) {
+        await queryRunner.manager.decrement(
+          ShopGoodsEntity,
+          { id: item.productId },
+          'stock',
+          item.quantity
+        );
+      }
+
+      // 8. 生成订单号
+      const orderNo = this.generateOrderNo();
+
+      // 9. 写入 shop_order（先创建订单获取ID）
+      const order = await queryRunner.manager.save(ShopOrderEntity, {
+        userId,
+        orderNo,
+        totalUSDT,
+        status: 1, // 已支付
+        payType: 1,
+        address,
+        phone,
+        contact,
+      });
+
+      // 9.1 写入交易记录（下单消费）
+      await this.userTransactionService.createTransaction(
+        {
+          userId,
+          type: 2, // 下单消费
+          amount: -totalUSDT, // 支出
+          balanceBefore,
+          balanceAfter: newBalance,
+          orderId: order.id,
+          remark: `订单 ${orderNo} 消费`,
+          status: 1,
+        },
+        queryRunner
+      );
+
+      // 10. 写入 shop_order_item
+      const orderItemRecords = orderItems.map(item => ({
+        orderId: order.id,
+        ...item,
+      }));
+      await queryRunner.manager.save(ShopOrderItemEntity, orderItemRecords);
+
+      // 11. 佣金分成（级差制）
+      await this.calculateCommission(userId, order.id, totalUSDT, queryRunner);
+
+      // 12. 清空购物车
+      await queryRunner.manager.delete(ShopCartEntity, { userId });
+
+      return {
+        orderId: order.id,
+        orderNo: order.orderNo,
+        totalUSDT: order.totalUSDT,
+        status: order.status,
+        payType: order.payType,
+      };
+    } else {
+      // USDT扫码支付：创建待支付订单
+      return await this.createOrderByUSDT(
+        userId,
+        totalUSDT,
+        address,
+        phone,
+        contact,
+        orderItems,
+        cartItems,
+        usdtRate,
+        queryRunner
+      );
+    }
+  }
+
+  /**
+   * USDT扫码支付：创建待支付订单
+   */
+  private async createOrderByUSDT(
+    userId: number,
+    totalUSDT: number,
+    address: string,
+    phone: string,
+    contact: string,
+    orderItems: any[],
+    cartItems: any[],
+    usdtRate: number,
+    queryRunner: QueryRunner
+  ) {
+    // 1. 生成订单号
+    const orderNo = this.generateOrderNo();
+
+    // 2. 计算人民币金额
+    const amountCNY = Number((totalUSDT * usdtRate).toFixed(2));
+
+    // 3. 调用 Epusdt API 创建支付订单
+    const epusdtResult = await this.userRechargeService.createTransaction(
+      userId,
+      amountCNY,
+      2
     );
 
-    // 7. 扣减每个商品 stock
-    for (const item of cartItems) {
+    // 4. 创建待支付订单
+    const order = await queryRunner.manager.save(ShopOrderEntity, {
+      userId,
+      orderNo,
+      totalUSDT,
+      status: 0, // 待支付
+      payType: 2, // USDT扫码
+      tradeId: epusdtResult.tradeId,
+      address,
+      phone,
+      contact,
+    });
+
+    // 5. 预扣库存（用户转账成功后正式扣减）
+    // 这里我们先不减库存，等支付成功后再扣
+
+    // 6. 写入 shop_order_item（预创建）
+    const orderItemRecords = orderItems.map(item => ({
+      orderId: order.id,
+      ...item,
+    }));
+    await queryRunner.manager.save(ShopOrderItemEntity, orderItemRecords);
+
+    return {
+      orderId: order.id,
+      orderNo: order.orderNo,
+      totalUSDT: order.totalUSDT,
+      amountCNY, // 人民币金额
+      status: order.status, // 0=待支付
+      payType: order.payType, // 2=USDT扫码
+      tradeId: order.tradeId,
+      paymentUrl: epusdtResult.paymentUrl,
+      expirationTime: epusdtResult.expirationTime,
+    };
+  }
+
+  /**
+   * 完成订单（支付成功后调用）
+   * @param orderId 订单ID
+   * @param queryRunner QueryRunner
+   */
+  async completeOrder(orderId: number, queryRunner?: QueryRunner) {
+    // 1. 查询订单
+    const order = await this.orderEntity.findOneBy({ id: orderId });
+    if (!order || order.status !== 0) {
+      return;
+    }
+
+    // 2. 查询购物车商品信息（用于扣库存）
+    const orderItems = await this.orderItemEntity.find({
+      where: { orderId },
+    });
+
+    // 3. 扣减每个商品 stock
+    for (const item of orderItems) {
       await queryRunner.manager.decrement(
         ShopGoodsEntity,
         { id: item.productId },
@@ -143,52 +333,48 @@ export class ShopOrderService extends BaseService {
       );
     }
 
-    // 8. 生成订单号
-    const orderNo = this.generateOrderNo();
-
-    // 9. 写入 shop_order（先创建订单获取ID）
-    const order = await queryRunner.manager.save(ShopOrderEntity, {
-      userId,
-      orderNo,
-      totalUSDT,
-      status: 1,
-      address,
+    // 4. 更新订单状态为已支付
+    await queryRunner.manager.update(ShopOrderEntity, orderId, {
+      status: 1, // 已支付
     });
 
-    // 9.1 写入交易记录（下单消费）
-    await this.userTransactionService.createTransaction(
-      {
-        userId,
-        type: 2, // 下单消费
-        amount: -totalUSDT, // 支出
-        balanceBefore,
-        balanceAfter: newBalance,
-        orderId: order.id,
-        remark: `订单 ${orderNo} 消费`,
-        status: 1,
-      },
+    // 5. 佣金分成（级差制）
+    await this.calculateCommission(
+      order.userId,
+      orderId,
+      order.totalUSDT,
       queryRunner
     );
 
-    // 10. 写入 shop_order_item
-    const orderItemRecords = orderItems.map(item => ({
-      orderId: order.id,
-      ...item,
-    }));
-    await queryRunner.manager.save(ShopOrderItemEntity, orderItemRecords);
+    // 6. 清空购物车
+    await queryRunner.manager.delete(ShopCartEntity, { userId: order.userId });
+  }
 
-    // 11. 佣金分成（级差制）
-    await this.calculateCommission(userId, order.id, totalUSDT, queryRunner);
+  /**
+   * 订单超时处理
+   * @param orderId 订单ID
+   * @param queryRunner QueryRunner
+   */
+  async timeoutOrder(orderId: number, queryRunner?: QueryRunner) {
+    const order = await this.orderEntity.findOneBy({ id: orderId });
+    if (!order || order.status !== 0) {
+      return;
+    }
 
-    // 12. 清空购物车
-    await queryRunner.manager.delete(ShopCartEntity, { userId });
+    // 更新订单状态为超时
+    await queryRunner.manager.update(ShopOrderEntity, orderId, {
+      status: 4, // 超时
+    });
 
-    return {
-      orderId: order.id,
-      orderNo: order.orderNo,
-      totalUSDT: order.totalUSDT,
-      status: order.status,
-    };
+    // 删除订单商品记录
+    await queryRunner.manager.delete(ShopOrderItemEntity, { orderId });
+  }
+
+  /**
+   * 通过 tradeId 查询订单
+   */
+  async getOrderByTradeId(tradeId: string) {
+    return await this.orderEntity.findOne({ where: { tradeId } });
   }
 
   /**
@@ -366,7 +552,16 @@ export class ShopOrderService extends BaseService {
       order: { createTime: 'DESC' },
       skip: (Number(page) - 1) * Number(size),
       take: Number(size),
-      select: ['id', 'orderNo', 'totalUSDT', 'status', 'address', 'createTime'],
+      select: [
+        'id',
+        'orderNo',
+        'totalUSDT',
+        'status',
+        'address',
+        'createTime',
+        'payType',
+        'tradeId',
+      ],
     });
 
     return {
@@ -412,6 +607,32 @@ export class ShopOrderService extends BaseService {
     return {
       ...order,
       items,
+    };
+  }
+
+  /**
+   * 查询订单支付状态（供前端轮询）
+   * @param param { id: number }
+   */
+  async getPayStatus(param: { id: number }) {
+    const userId = this.getCurrentUserId();
+    const { id } = param;
+
+    const order = await this.orderEntity.findOne({
+      where: { id, userId: Equal(userId) },
+      select: ['id', 'orderNo', 'status', 'payType', 'totalUSDT'],
+    });
+
+    if (!order) {
+      throw new CoolCommException('订单不存在');
+    }
+
+    return {
+      id: order.id,
+      orderNo: order.orderNo,
+      status: order.status,
+      payType: order.payType,
+      totalUSDT: order.totalUSDT,
     };
   }
 }

@@ -1,4 +1,41 @@
 declare namespace Eps {
+	interface AppConfigEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 配置键
+		 */
+		cKey?: string;
+
+		/**
+		 * 配置值
+		 */
+		cValue?: string;
+
+		/**
+		 * 配置名称
+		 */
+		cName?: string;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	interface BaseSysDepartmentEntity {
 		/**
 		 * ID
@@ -799,11 +836,6 @@ declare namespace Eps {
 		priceRMB?: number;
 
 		/**
-		 * USDT价格
-		 */
-		priceUSDT?: number;
-
-		/**
 		 * 库存
 		 */
 		stock?: number;
@@ -899,6 +931,16 @@ declare namespace Eps {
 		 * 收货人
 		 */
 		contact?: string;
+
+		/**
+		 * 支付方式
+		 */
+		payType?: number;
+
+		/**
+		 * Epusdt交易号
+		 */
+		tradeId?: string;
 
 		/**
 		 * 创建时间
@@ -1469,7 +1511,12 @@ declare namespace Eps {
 		orderNo?: string;
 
 		/**
-		 * 状态 0=待充值 1=成功 2=超时
+		 * Epusdt交易号
+		 */
+		tradeId?: string;
+
+		/**
+		 * 状态
 		 */
 		status?: number;
 
@@ -1825,6 +1872,11 @@ declare namespace Eps {
 	interface UserWithdrawPageResponse {
 		pagination: PagePagination;
 		list: UserWithdrawEntity[];
+	}
+
+	interface AppConfigPageResponse {
+		pagination: PagePagination;
+		list: AppConfigEntity[];
 	}
 
 	interface BaseCoding {
@@ -3631,6 +3683,64 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface AppConfig {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<AppConfigEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<AppConfigEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<AppConfigPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -3683,5 +3793,6 @@ declare namespace Eps {
 			walletlog: UserWalletlog;
 			withdraw: UserWithdraw;
 		};
+		app: { config: AppConfig };
 	};
 }

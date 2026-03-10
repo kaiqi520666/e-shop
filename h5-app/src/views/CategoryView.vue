@@ -3,6 +3,7 @@ import { ref, computed, watch, inject, onMounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useCartStore } from '@/stores/cart'
+import { useAppStore } from '@/stores/app'
 import { formatPrice } from '@/utils'
 import { ShoppingCart, Wind, Wine, Cigarette } from 'lucide-vue-next'
 import Empty from '@/components/common/Empty.vue'
@@ -12,7 +13,12 @@ const route = useRoute()
 const router = useRouter()
 const productStore = useProductStore()
 const cartStore = useCartStore()
+const appStore = useAppStore()
 const toast = inject('toast')
+
+function getPriceUSDT(product) {
+  return appStore.usdt_rate ? product.priceRMB / appStore.usdt_rate : 0
+}
 
 // 图标映射
 const iconMap = {
@@ -105,7 +111,11 @@ watch(
 onMounted(async () => {
   // 加载分类和产品数据
   if (productStore.categoryList.length === 0) {
-    await Promise.all([productStore.fetchCategories(), productStore.fetchProducts()])
+    await Promise.all([
+      productStore.fetchCategories(),
+      productStore.fetchProducts(),
+      appStore.fetchConfigList(),
+    ])
   }
 
   // 数据加载完成后初始化分类 ID
@@ -221,8 +231,10 @@ function addToCart(product) {
             <h3 class="mb-1.5 truncate text-sm">{{ product.name }}</h3>
             <div class="flex items-end justify-between">
               <div>
-                <p class="text-base font-bold text-gold">{{ formatPrice(product.priceUSDT) }}</p>
-                <p class="text-xs text-text-muted line-through">
+                <p class="text-base font-bold text-gold">
+                  {{ formatPrice(getPriceUSDT(product)) }}
+                </p>
+                <p class="text-xs text-text-muted">
                   {{ formatPrice(product.priceRMB, 'RMB') }}
                 </p>
               </div>

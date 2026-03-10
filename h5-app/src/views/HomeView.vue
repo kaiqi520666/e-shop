@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useProductStore } from '@/stores/product'
 import { useCartStore } from '@/stores/cart'
 import { useUserStore } from '@/stores/user'
-import { useReviewStore } from '@/stores/review'
+import { useAppStore } from '@/stores/app'
 import { formatPrice } from '@/utils'
 import Loading from '@/components/common/Loading.vue'
 import {
@@ -19,7 +19,6 @@ import {
   Cigarette,
   Wine,
   Wind,
-  Star,
 } from 'lucide-vue-next'
 
 const categoryIcons = { Cigarette, Wine, Wind }
@@ -28,6 +27,7 @@ const router = useRouter()
 const productStore = useProductStore()
 const cartStore = useCartStore()
 const userStore = useUserStore()
+const appStore = useAppStore()
 const toast = inject('toast')
 
 const currentBanner = ref(0)
@@ -37,11 +37,15 @@ let bannerTimer = null
 onMounted(async () => {
   loading.value = true
   // 加载产品数据
-  await Promise.all([
-    productStore.fetchProducts(),
-    productStore.fetchCategories(),
-    productStore.fetchBanners(),
-  ])
+  if (productStore.productList.length === 0) {
+    await Promise.all([
+      productStore.fetchProducts(),
+      productStore.fetchCategories(),
+      productStore.fetchBanners(),
+      appStore.fetchConfigList(),
+      userStore.fetchDirectTeamCount(),
+    ])
+  }
   loading.value = false
 
   // 启动 banner 轮播
@@ -201,7 +205,7 @@ const trustItems = [
             <p class="mt-0.5 text-sm text-text-secondary">
               我的邀请码
               <code class="font-mono text-gold">{{ userStore.currentUser?.inviteCode }}</code> ·
-              已邀请 {{ userStore.currentUser?.invitedCount ?? 0 }} 人
+              已邀请 {{ userStore.currentUser?.directTeamCount ?? 0 }} 人
             </p>
             <p class="mt-1 text-xs text-text-muted">邀请好友注册，共享优惠奖励</p>
           </template>
@@ -269,8 +273,10 @@ const trustItems = [
             <h3 class="mb-1.5 truncate text-sm">{{ product.name }}</h3>
             <div class="flex items-end justify-between">
               <div>
-                <p class="text-base font-bold text-gold">{{ formatPrice(product.priceUSDT) }}</p>
-                <p class="text-xs text-text-muted line-through">
+                <p class="text-base font-bold text-gold">
+                  {{ formatPrice(product.priceRMB / appStore.usdt_rate, 'USDT') }}
+                </p>
+                <p class="text-xs text-text-muted">
                   {{ formatPrice(product.priceRMB, 'RMB') }}
                 </p>
               </div>
@@ -342,8 +348,10 @@ const trustItems = [
             <h3 class="mb-1.5 truncate text-sm">{{ product.name }}</h3>
             <div class="flex items-end justify-between">
               <div>
-                <p class="text-base font-bold text-gold">{{ formatPrice(product.priceUSDT) }}</p>
-                <p class="text-xs text-text-muted line-through">
+                <p class="text-base font-bold text-gold">
+                  {{ formatPrice(product.priceRMB / appStore.usdt_rate, 'USDT') }}
+                </p>
+                <p class="text-xs text-text-muted">
                   {{ formatPrice(product.priceRMB, 'RMB') }}
                 </p>
               </div>

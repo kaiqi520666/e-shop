@@ -19,9 +19,9 @@ export default () => {
     // jwt
     jwt: {
       // token 过期时间，单位秒
-      expire: 60 * 60 * 24,
+      expire: 60 * 60 * 24 * 30,
       // 刷新token 过期时间，单位秒
-      refreshExpire: 60 * 60 * 24 * 30,
+      refreshExpire: 60 * 60 * 24 * 30 * 12,
       // jwt 秘钥
       secret: '7529a7e7-e04e-4472-b6ba-06b4fabb99bcx',
     },

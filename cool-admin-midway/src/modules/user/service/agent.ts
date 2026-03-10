@@ -74,6 +74,30 @@ export class UserAgentService extends BaseService {
       level: c.ancestorPath.split('/').filter(Boolean).length - baseDepth,
     }));
   }
+  //获取直属下级数量
+  async directTeamCount(userId: number) {
+    const user = await this.userInfoEntity.findOneBy({ id: Equal(userId) });
+    if (!user) return 0;
+    return await this.userInfoEntity.count({
+      where: { parentId: Equal(userId) },
+    });
+  }
+  //获取团队成员数量
+  async teamCount(userId: number) {
+    // 1. 先查自己的 ancestorPath
+    const user = await this.userInfoEntity.findOneBy({ id: Equal(userId) });
+    if (!user) return 0;
+
+    // 2. 用自己的 ancestorPath 作为前缀查询
+    // 下级的 ancestorPath 会是 /1/5/userId/ 这种格式
+    const count = await this.userInfoEntity.count({
+      where: {
+        ancestorPath: Like(`${user.ancestorPath}${userId}/%`),
+      },
+    });
+
+    return count;
+  }
 
   /**
    * 手机号脱敏
@@ -121,23 +145,6 @@ export class UserAgentService extends BaseService {
     );
 
     return { success: true };
-  }
-
-  //获取除自己之外所有下级数量
-  async getSubUserCount(userId: number) {
-    // 1. 先查自己的 ancestorPath
-    const user = await this.userInfoEntity.findOneBy({ id: Equal(userId) });
-    if (!user) return 0;
-
-    // 2. 用自己的 ancestorPath 作为前缀查询
-    // 下级的 ancestorPath 会是 /1/5/userId/ 这种格式
-    const count = await this.userInfoEntity.count({
-      where: {
-        ancestorPath: Like(`${user.ancestorPath}${userId}/%`),
-      },
-    });
-
-    return count;
   }
 
   /**

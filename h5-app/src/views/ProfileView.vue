@@ -2,6 +2,8 @@
 import { ref, computed, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/app'
+import { useProductStore } from '@/stores/product'
 import { useOrderStore } from '@/stores/order'
 import { maskPhone, formatPrice, maskAddress } from '@/utils'
 import Loading from '@/components/common/Loading.vue'
@@ -30,14 +32,16 @@ import {
   KeyRound,
   Link2,
   X,
+  RefreshCw,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const userStore = useUserStore()
+const appStore = useAppStore()
+const productStore = useProductStore()
 const orderStore = useOrderStore()
 const toast = inject('toast')
 
-const user = userStore.currentUser
 const loading = ref(true)
 
 // 加载数据
@@ -45,7 +49,7 @@ onMounted(async () => {
   if (userStore.isLoggedIn) {
     await Promise.all([
       orderStore.fetchOrders(),
-      userStore.fetchWallet(),
+      userStore.fetchUserInfo(),
       userStore.fetchTeamCount(),
     ])
   }
@@ -61,7 +65,7 @@ const totalConsumption = computed(() => {
 
 // 累计收入
 const totalIncome = computed(() => {
-  return user?.totalIncome ?? 0
+  return userStore.currentUser?.totalIncome ?? 0
 })
 
 // 订单总数
@@ -70,9 +74,9 @@ const orderCount = computed(() => {
 })
 
 function copyInviteCode() {
-  if (!user) return
+  if (!userStore.currentUser) return
   navigator.clipboard
-    .writeText(user.inviteCode)
+    .writeText(userStore.currentUser?.inviteCode)
     .then(() => {
       toast.success('邀请码已复制')
     })
@@ -82,8 +86,8 @@ function copyInviteCode() {
 }
 
 function copyInviteLink() {
-  if (!user) return
-  const link = `${window.location.origin}/register?code=${user.inviteCode}`
+  if (!userStore.currentUser) return
+  const link = `${window.location.origin}/register?code=${userStore.currentUser?.inviteCode}`
   navigator.clipboard
     .writeText(link)
     .then(() => {
@@ -98,6 +102,31 @@ function handleLogout() {
   userStore.logout()
   toast.success('已退出登录')
   router.replace('/login')
+}
+
+// 刷新所有数据
+const refreshing = ref(false)
+async function refreshAllData() {
+  if (refreshing.value) return
+
+  refreshing.value = true
+  try {
+    // 并行请求多个接口
+    await Promise.all([
+      userStore.fetchUserInfo(),
+      appStore.fetchConfigList(),
+      productStore.fetchProducts(),
+      productStore.fetchCategories(),
+      orderStore.fetchOrders(),
+      userStore.fetchDirectTeamCount(),
+    ])
+    toast.success('数据已刷新')
+  } catch (e) {
+    console.error('刷新数据失败:', e)
+    toast.error('刷新失败')
+  } finally {
+    refreshing.value = false
+  }
 }
 
 function placeholderClick() {
@@ -120,7 +149,11 @@ function goToRecharge() {
 
 function openBindWallet() {
   walletModalMode.value = 'bind'
-  walletForm.value = { address: user?.walletAddress || '', password: '', amount: '' }
+  walletForm.value = {
+    address: userStore.currentUser?.walletAddress || '',
+    password: '',
+    amount: '',
+  }
   showWalletModal.value = true
 }
 
@@ -150,7 +183,7 @@ async function confirmWalletAction() {
     if (!walletForm.value.amount || Number(walletForm.value.amount) <= 0) {
       return toast.error('请输入提现金额')
     }
-    if (Number(walletForm.value.amount) > (user?.balance || 0)) {
+    if (Number(walletForm.value.amount) > (userStore.currentUser?.balance || 0)) {
       return toast.error('余额不足')
     }
     const result = await userStore.withdraw(walletForm.value.amount, walletForm.value.password)
@@ -190,7 +223,7 @@ const quickEntries = [
             <div class="mt-1 flex items-start justify-between">
               <div class="flex items-center gap-2">
                 <h2 class="font-heading text-xl font-bold text-text-primary">
-                  {{ user?.username }}
+                  {{ userStore.currentUser?.username }}
                 </h2>
                 <span
                   class="inline-block rounded-full border border-gold/50 bg-gold/10 px-2.5 py-0.5 text-xs font-medium text-gold"
@@ -201,12 +234,20 @@ const quickEntries = [
             </div>
             <p class="mt-2 flex items-center gap-1.5 text-sm text-text-secondary">
               <Phone class="h-3.5 w-3.5 text-gold" />
-              {{ maskPhone(user?.phone) }}
+              {{ maskPhone(userStore.currentUser?.phone) }}
             </p>
           </div>
           <div class="text-right text-xs text-text-muted flex flex-col gap-3">
-            <div>UID：{{ user?.uid }}</div>
-            <div>上次登录：{{ user?.lastLogin || user?.createdAt }}</div>
+            <!-- 刷新按钮 -->
+            <button
+              :disabled="refreshing"
+              @click="refreshAllData"
+              class="flex items-center gap-1 rounded-lg bg-gold/10 px-2 py-1 text-xs text-gold transition-all hover:bg-gold/20 cursor-pointer"
+              :class="{ 'animate-pulse': refreshing }"
+            >
+              <RefreshCw class="h-3.5 w-3.5" :class="{ 'animate-spin': refreshing }" />
+              <span>{{ refreshing ? '刷新中...' : '刷新' }}</span>
+            </button>
           </div>
         </div>
       </div>
@@ -227,7 +268,7 @@ const quickEntries = [
             </div>
             <div>
               <p class="text-xs text-text-secondary">余额 (USDT)</p>
-              <p class="text-2xl font-bold text-gold">{{ user?.balance ?? 0 }}</p>
+              <p class="text-2xl font-bold text-gold">{{ userStore.currentUser?.balance ?? 0 }}</p>
             </div>
           </div>
           <button
@@ -247,7 +288,7 @@ const quickEntries = [
               <span class="text-xs text-text-secondary">钱包地址</span>
             </div>
             <button
-              v-if="!user?.walletAddress"
+              v-if="!userStore.currentUser?.walletAddress"
               class="flex items-center gap-1 text-xs text-gold hover:underline cursor-pointer"
               @click="openBindWallet"
             >
@@ -255,14 +296,17 @@ const quickEntries = [
               绑定钱包
             </button>
           </div>
-          <p v-if="user?.walletAddress" class="mt-1.5 font-mono text-xs text-text-primary truncate">
-            {{ maskAddress(user.walletAddress) }}
+          <p
+            v-if="userStore.currentUser?.walletAddress"
+            class="mt-1.5 font-mono text-xs text-text-primary truncate"
+          >
+            {{ maskAddress(userStore.currentUser?.walletAddress) }}
           </p>
           <p v-else class="mt-1.5 text-xs text-text-muted italic">未绑定钱包地址</p>
         </div>
 
         <!-- Action Buttons -->
-        <div v-if="user?.walletAddress" class="mt-3 flex gap-3">
+        <div v-if="userStore.currentUser?.walletAddress" class="mt-3 flex gap-3">
           <button
             class="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gold/30 bg-gold/5 py-2.5 text-xs font-medium text-gold transition-all duration-200 hover:bg-gold/10 hover:shadow-[0_0_12px_rgba(201,168,76,0.15)] cursor-pointer"
             @click="openBindWallet"
@@ -293,7 +337,7 @@ const quickEntries = [
           </div>
           <div>
             <p class="font-heading text-md font-medium text-gold">
-              代理中心 · 团队 {{ user?.teamCount ?? 0 }}人
+              代理中心 · 团队 {{ userStore.currentUser?.teamCount ?? 0 }}人
             </p>
           </div>
         </div>
@@ -307,7 +351,7 @@ const quickEntries = [
         <h3 class="mb-3 font-heading text-sm font-medium text-gold">专属邀请码</h3>
         <div class="mb-3 flex items-center justify-between gap-4">
           <code class="font-mono text-2xl font-bold tracking-[0.3em] text-gold">
-            {{ user?.inviteCode }}
+            {{ userStore.currentUser?.inviteCode }}
           </code>
           <button
             type="button"
@@ -483,7 +527,9 @@ const quickEntries = [
           <div v-else class="space-y-4">
             <div class="rounded-xl border border-gold/20 bg-gold/5 p-4">
               <p class="text-xs text-text-secondary mb-1">可提现余额</p>
-              <p class="text-2xl font-bold text-gold">{{ user?.balance ?? 0 }} USDT</p>
+              <p class="text-2xl font-bold text-gold">
+                {{ userStore.currentUser?.balance ?? 0 }} USDT
+              </p>
             </div>
             <div>
               <label class="mb-2 block text-xs font-medium text-text-secondary">提现金额</label>
@@ -503,10 +549,10 @@ const quickEntries = [
                 class="w-full rounded-xl border border-border bg-bg-secondary px-3 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:border-gold/50 focus:outline-none"
               />
             </div>
-            <div v-if="user?.walletAddress" class="rounded-lg bg-bg-secondary p-3">
+            <div v-if="userStore.currentUser?.walletAddress" class="rounded-lg bg-bg-secondary p-3">
               <p class="text-xs text-text-muted">提现至</p>
               <p class="font-mono text-xs text-text-primary mt-1">
-                {{ maskAddress(user.walletAddress) }}
+                {{ maskAddress(userStore.currentUser?.walletAddress) }}
               </p>
             </div>
             <button

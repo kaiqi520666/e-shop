@@ -19,8 +19,8 @@ const showPassword = ref(false)
 const loading = ref(false)
 
 function validate() {
-  if (form.value.username.trim().length < 3) {
-    toast.error('用户名至少3个字符')
+  if (!/^[A-Za-z0-9_]{6,16}$/.test(form.value.username.trim())) {
+    toast.error('用户名由数字和字母组成，6-16位，不包含特殊字符')
     return false
   }
   if (form.value.password.length < 6) {
@@ -60,7 +60,7 @@ async function handleRegister() {
 <template>
   <div class="flex min-h-dvh flex-col items-center justify-center px-6">
     <div class="w-full max-w-sm">
-      <h1 class="mb-2 text-center font-heading text-3xl font-bold text-gold">创建账户</h1>
+      <img src="/logo.png" alt="Logo" class="mx-auto mb-6 h-32 w-auto" />
       <p class="mb-10 text-center text-sm text-text-secondary">加入尊享商城</p>
 
       <form @submit.prevent="handleRegister" class="space-y-4">
@@ -72,7 +72,7 @@ async function handleRegister() {
             type="text"
             autocomplete="username"
             class="w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-gold"
-            placeholder="至少3个字符"
+            placeholder="用户名由数字和字母组成，6-16位，不包含特殊字符"
           />
         </div>
 

@@ -53,7 +53,8 @@ const options = reactive({
 		{ label: t('待支付'), value: 0, type: 'info' },
 		{ label: t('已支付'), value: 1, type: 'primary' },
 		{ label: t('已发货'), value: 2, type: 'warning' },
-		{ label: t('已完成'), value: 3, type: 'success' }
+		{ label: t('已完成'), value: 3, type: 'success' },
+		{ label: t('已超时'), value: 4, type: 'danger' }
 	]
 });
 
@@ -131,18 +132,11 @@ const Table = useTable({
 		{
 			label: t('创建时间'),
 			prop: 'createTime',
-			minWidth: 170,
+
 			sortable: 'desc',
 			component: { name: 'cl-date-text' }
 		},
-		{
-			label: t('更新时间'),
-			prop: 'updateTime',
-			minWidth: 170,
-			sortable: 'custom',
-			component: { name: 'cl-date-text' }
-		},
-		{ type: 'op', buttons: ['edit', 'delete', 'slot-detail'] }
+		{ type: 'op', buttons: ['edit', 'delete', 'slot-detail'], width: 300 }
 	]
 });
 

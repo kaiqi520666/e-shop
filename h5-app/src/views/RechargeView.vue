@@ -3,16 +3,17 @@ import { ref, computed, onMounted, onUnmounted, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { formatPrice } from '@/utils'
-import { walletAddress } from '@/mock/data'
 import { rechargeApi } from '@/api/modules/user/recharge.api'
+import { useAppStore } from '@/stores/app'
 import Header from '@/components/layout/Header.vue'
 import Loading from '@/components/common/Loading.vue'
-import { Copy, QrCode, Clock, List } from 'lucide-vue-next'
+import { Copy, Clock, List, QrCode } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const toast = inject('toast')
+const appStore = useAppStore()
 
 const amount = ref(route.query.amount || '')
 const loading = ref(false)
@@ -20,7 +21,11 @@ const isFixedAmount = computed(() => !!route.query.amount)
 
 // 当前充值订单
 const currentOrderNo = ref('')
-const showPaymentInfo = computed(() => !!currentOrderNo.value)
+const tradeId = ref('')
+const actualAmount = ref('')
+const token = ref('')
+const expirationTime = ref(0)
+const showPaymentInfo = computed(() => !!tradeId.value)
 
 // Tab 切换
 const activeTab = ref('recharge')
@@ -69,21 +74,22 @@ function startCountdown() {
       remainingTime.value--
     } else {
       clearInterval(timer)
+      // 停止状态轮询
+      if (statusTimer) clearInterval(statusTimer)
       toast.info('充值订单已超时，请重新发起充值')
-      currentOrderNo.value = ''
+      resetOrder()
     }
   }, 1000)
 }
 
 onUnmounted(() => {
   if (timer) clearInterval(timer)
+  if (statusTimer) clearInterval(statusTimer)
 })
-
-const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${walletAddress}`
 
 function copyWallet() {
   navigator.clipboard
-    .writeText(walletAddress)
+    .writeText(token.value)
     .then(() => {
       toast.success('钱包地址已复制')
     })
@@ -92,8 +98,73 @@ function copyWallet() {
     })
 }
 
+function copyAmount() {
+  navigator.clipboard
+    .writeText(actualAmount.value)
+    .then(() => {
+      toast.success('金额已复制')
+    })
+    .catch(() => {
+      toast.info('请手动复制金额')
+    })
+}
+
+const qrUrl = computed(
+  () => `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${token.value}`,
+)
+
+// 订单状态轮询
+let statusTimer = null
+const orderStatus = ref(1) // 1-等待支付 2-成功 3-超时
+
+async function checkOrderStatus() {
+  if (!tradeId.value) return
+  try {
+    const res = await rechargeApi.check(tradeId.value)
+    if (res.code === 1000) {
+      orderStatus.value = res.data.status
+      if (res.data.status === 2) {
+        // 支付成功
+        clearInterval(statusTimer)
+        toast.success('充值成功！')
+        // 刷新用户余额
+        await userStore.fetchWallet()
+        // 清除订单信息
+        resetOrder()
+        // 跳转到记录页面
+        setActiveTab('records')
+      } else if (res.data.status === 3) {
+        // 支付超时
+        clearInterval(statusTimer)
+        toast.error('订单已超时，请重新发起充值')
+        resetOrder()
+      }
+    }
+  } catch (error) {
+    console.error('查询订单状态失败:', error)
+  }
+}
+
+function startStatusPolling() {
+  if (statusTimer) clearInterval(statusTimer)
+  statusTimer = setInterval(checkOrderStatus, 10000) // 每3秒查询一次
+}
+
+function resetOrder() {
+  if (statusTimer) {
+    clearInterval(statusTimer)
+    statusTimer = null
+  }
+  currentOrderNo.value = ''
+  tradeId.value = ''
+  actualAmount.value = ''
+  token.value = ''
+  expirationTime.value = 0
+  orderStatus.value = 1
+}
+
 async function submitRecharge() {
-  const num = Number(amount.value)
+  const num = Number(amount.value) * appStore.usdt_rate
   if (isNaN(num) || num <= 0) {
     toast.error('请输入有效金额')
     return
@@ -103,7 +174,16 @@ async function submitRecharge() {
     const res = await rechargeApi.apply({ amount: num })
     if (res.code === 1000) {
       currentOrderNo.value = res.data.orderNo
+      tradeId.value = res.data.tradeId
+      actualAmount.value = res.data.actualAmount
+      token.value = res.data.token
+      expirationTime.value = res.data.expirationTime
+      orderStatus.value = 1
+      // 使用服务器返回的过期时间计算倒计时
+      remainingTime.value = expirationTime.value - Math.floor(Date.now() / 1000)
       startCountdown()
+      // 开始轮询订单状态
+      startStatusPolling()
       toast.success('充值申请已提交，请在倒计时内完成转账')
     } else {
       toast.error(res.message || '充值失败')
@@ -192,28 +272,53 @@ async function submitRecharge() {
           <p class="mb-4 text-xs text-text-muted">
             请在 {{ formattedTime }} 内完成转账，超时订单将自动取消
           </p>
+
+          <!-- 订单编号 -->
           <div class="mb-4 rounded-lg bg-bg-secondary p-3">
-            <p class="text-xs text-text-muted mb-1">订单号</p>
-            <p class="font-mono text-sm text-gold">{{ currentOrderNo }}</p>
+            <p class="text-xs text-text-muted mb-1">订单编号</p>
+            <p class="font-mono text-sm text-gold">{{ tradeId }}</p>
           </div>
-          <div class="mb-4 flex justify-center">
+
+          <!-- 提示 -->
+          <div class="mb-4 rounded-lg bg-orange-500/10 border border-orange-500/30 p-3">
+            <p class="text-xs text-orange-500">当前USDT支付区块网络协议为TRC20</p>
+            <p class="text-xs text-orange-500 mt-1">
+              到账金额需要与下方显示的金额一致，否则系统无法确认
+            </p>
+          </div>
+
+          <!-- USDT金额 -->
+          <div
+            class="mb-4 flex items-center justify-between rounded-lg bg-gold/10 border border-gold/30 p-4 cursor-pointer"
+            @click="copyAmount"
+          >
+            <div>
+              <p class="text-xs text-text-muted">充值USDT金额</p>
+              <p class="text-2xl font-bold text-gold">{{ actualAmount }} USDT</p>
+            </div>
+            <Copy class="h-5 w-5 text-gold" />
+          </div>
+
+          <!-- 钱包地址 -->
+          <div
+            class="flex items-center gap-2 rounded-lg bg-bg-secondary p-3 cursor-pointer"
+            @click="copyWallet"
+          >
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-text-muted">钱包地址</p>
+              <code class="block truncate text-xs text-text-primary">{{ token }}</code>
+            </div>
+            <Copy class="h-4 w-4 shrink-0 text-gold" />
+          </div>
+
+          <!-- 二维码 -->
+          <div v-if="token" class="mt-4 flex justify-center">
             <img
               :src="qrUrl"
               alt="USDT TRC20 收款二维码"
-              class="h-36 w-36 rounded-lg bg-white p-2"
+              class="h-40 w-40 rounded-lg bg-white p-2"
               loading="lazy"
             />
-          </div>
-          <div class="flex items-center gap-2 rounded-lg bg-bg-secondary p-3">
-            <QrCode class="h-4 w-4 shrink-0 text-gold" />
-            <code class="flex-1 truncate text-xs text-text-secondary">{{ walletAddress }}</code>
-            <button
-              type="button"
-              class="shrink-0 text-xs text-gold transition-colors duration-200 hover:text-gold-light cursor-pointer"
-              @click="copyWallet"
-            >
-              <Copy class="h-4 w-4" />
-            </button>
           </div>
         </div>
 

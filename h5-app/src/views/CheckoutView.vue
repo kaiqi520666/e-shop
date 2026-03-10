@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import { useAddressStore } from '@/stores/address'
 import { useUserStore } from '@/stores/user'
+import { useAppStore } from '@/stores/app'
 import { orderApi } from '@/api/modules/shop/order.api'
 import { formatPrice } from '@/utils'
 import { walletAddress } from '@/mock/data'
@@ -15,9 +16,14 @@ const router = useRouter()
 const cartStore = useCartStore()
 const addressStore = useAddressStore()
 const userStore = useUserStore()
+const appStore = useAppStore()
 const toast = inject('toast')
 
 const loading = ref(false)
+
+function getPriceUSDT(item) {
+  return appStore.usdt_rate ? item.priceRMB / appStore.usdt_rate : 0
+}
 const showAddressPicker = ref(false)
 const paymentMethod = ref('balance') // 'balance' | 'usdt'
 
@@ -25,6 +31,7 @@ const selectedAddress = ref(null)
 
 // 页面加载时获取地址列表
 onMounted(async () => {
+  appStore.fetchConfigList()
   await addressStore.fetchAddressList()
   selectedAddress.value = addressStore.defaultAddress
 })
@@ -69,34 +76,35 @@ async function submitOrder() {
 
   loading.value = true
   try {
-    const addr =
-      selectedAddress.value.address ||
-      selectedAddress.value.detail ||
-      [
-        selectedAddress.value.province,
-        selectedAddress.value.city,
-        selectedAddress.value.district,
-        selectedAddress.value.detail,
-      ]
-        .filter(Boolean)
-        .join('')
-
     const res = await orderApi.createOrder({
       phone: selectedAddress.value.phone,
-      address: addr,
-      contact: selectedAddress.value.contact || selectedAddress.value.name,
+      address: selectedAddress.value.address,
+      contact: selectedAddress.value.contact,
+      payType: paymentMethod.value === 'balance' ? 1 : 2,
     })
 
     if (res.code === 1000) {
       cartStore.clearCart()
       // 更新用户余额
       await userStore.fetchUserInfo()
+
+      const payType = res.data.payType || 1
+      const status = res.data.status || 0
+      const tradeId = res.data.tradeId
+      const expirationTime = res.data.expirationTime
+
       router.replace({
         name: 'orderSuccess',
         query: {
+          orderId: res.data.orderId,
           orderNo: res.data.orderNo,
           total: res.data.totalUSDT,
-          address: addr,
+          amountCNY: res.data.amountCNY,
+          address: selectedAddress.value.address,
+          payType,
+          status,
+          tradeId,
+          expirationTime,
         },
       })
     } else {
@@ -181,7 +189,7 @@ async function submitOrder() {
               <p class="text-xs text-text-muted">x{{ item.quantity }}</p>
             </div>
             <p class="shrink-0 text-sm font-bold text-gold">
-              {{ formatPrice(item.priceUSDT * item.quantity) }}
+              {{ formatPrice(getPriceUSDT(item) * item.quantity) }}
             </p>
           </div>
         </div>
@@ -231,7 +239,7 @@ async function submitOrder() {
       </div>
 
       <!-- USDT QR (only when USDT selected) -->
-      <div
+      <!-- <div
         v-if="paymentMethod === 'usdt'"
         class="mt-4 rounded-xl border border-border bg-bg-card p-4"
       >
@@ -255,9 +263,9 @@ async function submitOrder() {
             <Copy class="h-4 w-4" />
           </button>
         </div>
-      </div>
+      </div> -->
 
-      <div v-if="!canUseBalance" class="mt-2 text-xs text-text-muted">
+      <div v-if="!canUseBalance" class="mt-2 text-sm text-text-muted">
         余额不足，请先
         <router-link to="/recharge" class="text-gold cursor-pointer">充值</router-link>
         或选择 USDT 扫码支付

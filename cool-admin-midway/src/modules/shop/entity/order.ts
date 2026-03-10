@@ -26,7 +26,7 @@ export class ShopOrderEntity extends BaseEntity {
     type: 'tinyint',
     default: 0,
     comment: '订单状态',
-    dict: ['待支付', '已支付', '已发货', '已完成'],
+    dict: ['待支付', '已支付', '已发货', '已完成', '超时'],
   })
   status: number;
 
@@ -38,4 +38,15 @@ export class ShopOrderEntity extends BaseEntity {
   //收货人
   @Column({ length: 100, nullable: true, comment: '收货人' })
   contact: string;
+
+  @Column({
+    type: 'tinyint',
+    default: 1,
+    comment: '支付方式',
+    dict: ['余额', 'USDT扫码'],
+  })
+  payType: number;
+
+  @Column({ length: 64, nullable: true, comment: 'Epusdt交易号' })
+  tradeId: string;
 }

@@ -141,15 +141,30 @@ export const useUserStore = defineStore(
       }
     }
 
+    async function fetchDirectTeamCount() {
+      if (!currentUser.value) return 0
+      try {
+        const res = await userApi.getDirectTeamCount()
+        const count = res.data || 0
+        // 保存到 currentUser 中
+        if (currentUser.value) {
+          currentUser.value.directTeamCount = count
+        }
+        return count
+      } catch {
+        return 0
+      }
+    }
     async function fetchTeamCount() {
       if (!currentUser.value) return 0
       try {
-        const res = await userApi.getSubUserCount()
+        const res = await userApi.getTeamCount()
         const count = res.data || 0
         // 保存到 currentUser 中
         if (currentUser.value) {
           currentUser.value.teamCount = count
         }
+
         return count
       } catch {
         return 0
@@ -218,6 +233,7 @@ export const useUserStore = defineStore(
       deductBalance,
       fetchTransactions,
       fetchTeam,
+      fetchDirectTeamCount,
       fetchTeamCount,
       fetchCommissions,
       setSubRate,

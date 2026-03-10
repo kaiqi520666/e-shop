@@ -42,6 +42,7 @@ import { reactive, ref, onMounted } from 'vue';
 const { service } = useCool();
 const { t } = useI18n();
 const { dict } = useDict();
+const usdtRate = ref(0);
 
 // 分类列表
 const categoryList = ref<any[]>([]);
@@ -96,7 +97,17 @@ function buildTree(list: any[]): any[] {
 }
 onMounted(() => {
 	getCategoryList();
+	getAppConfigList();
 });
+
+async function getAppConfigList() {
+	try {
+		const res = await service.app.config.list();
+		usdtRate.value = Number(res.find(item => item.cKey === 'usdt_rate')?.cValue) || 0;
+	} catch (error) {
+		console.error(error);
+	}
+}
 
 // cl-upsert
 const Upsert = useUpsert({
@@ -149,13 +160,6 @@ const Upsert = useUpsert({
 		{
 			label: t('人民币价格'),
 			prop: 'priceRMB',
-			component: { name: 'el-input', props: { clearable: true } },
-			span: 12,
-			required: true
-		},
-		{
-			label: t('USDT价格'),
-			prop: 'priceUSDT',
 			component: { name: 'el-input', props: { clearable: true } },
 			span: 12,
 			required: true
@@ -233,7 +237,14 @@ const Table = useTable({
 		{ label: t('商品名称'), prop: 'name', minWidth: 120 },
 		// { label: t('分类ID（叶子分类）'), prop: 'categoryId', minWidth: 120 },
 		{ label: t('人民币价格'), prop: 'priceRMB', minWidth: 120 },
-		{ label: t('USDT价格'), prop: 'priceUSDT', minWidth: 120 },
+		{
+			label: t('USDT价格'),
+			prop: 'priceUSDT',
+			minWidth: 120,
+			formatter: (row: any) => {
+				return Number(row.priceRMB / usdtRate.value).toFixed(4);
+			}
+		},
 		{ label: t('库存'), prop: 'stock', minWidth: 120 },
 		{
 			label: t('状态'),
