@@ -72,7 +72,7 @@ const reviewSummary = ref(null)
 const positiveRate = ref(0)
 const showAllReviews = ref(false)
 const displayedReviews = computed(() =>
-  showAllReviews.value ? reviews.value : reviews.value.slice(0, 2)
+  showAllReviews.value ? reviews.value : reviews.value.slice(0, 2),
 )
 
 // 提交评价弹窗
@@ -242,9 +242,7 @@ function buyNow() {
 
       <div class="mb-4 flex items-baseline gap-3">
         <span class="text-2xl font-bold text-gold">{{ formatPrice(getPriceUSDT(product)) }}</span>
-        <span class="text-sm text-text-muted line-through">{{
-          formatPrice(product.priceRMB, 'RMB')
-        }}</span>
+        <span class="text-sm text-text-muted">{{ formatPrice(product.priceRMB, 'RMB') }}</span>
       </div>
 
       <div class="mb-5 flex items-center gap-2 text-sm text-text-secondary">
@@ -345,10 +343,7 @@ function buyNow() {
           >
             <div class="mb-2 flex items-center gap-2">
               <!-- 头像：有头像显示头像，没有则显示首字母 -->
-              <div
-                v-if="review.avatar"
-                class="h-8 w-8 shrink-0 overflow-hidden rounded-full"
-              >
+              <div v-if="review.avatar" class="h-8 w-8 shrink-0 overflow-hidden rounded-full">
                 <img
                   :src="review.avatar"
                   :alt="review.username"
@@ -499,6 +494,6 @@ function buyNow() {
   </div>
 
   <div v-else class="flex min-h-dvh items-center justify-center">
-    <p class="text-text-muted">商品不存在</p>
+    <p class="text-text-muted">商品加载中...</p>
   </div>
 </template>

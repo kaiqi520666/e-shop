@@ -16,20 +16,12 @@ export class OpenRechargeController extends BaseController {
   async notify(
     @Body('trade_id') trade_id: string,
     @Body('status') status: number,
-    @Body('order_id') order_id: string,
-    @Body('amount') amount: number,
-    @Body('actual_amount') actual_amount: number,
-    @Body('token') token: string,
-    @Body('signature') signature: string
+    @Body('actual_amount') actual_amount: number
   ): Promise<string> {
     return await this.userRechargeService.handleNotify({
       trade_id,
       status,
-      order_id,
-      amount,
       actual_amount,
-      token,
-      signature,
     });
   }
 }

@@ -311,6 +311,7 @@ export class ShopOrderService extends BaseService {
    * @param orderId 订单ID
    * @param queryRunner QueryRunner
    */
+  @CoolTransaction({ connectionName: 'default' })
   async completeOrder(orderId: number, queryRunner?: QueryRunner) {
     // 1. 查询订单
     const order = await this.orderEntity.findOneBy({ id: orderId });

@@ -18,6 +18,14 @@ export class UserRechargeEntity extends BaseEntity {
   })
   amount: number;
 
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 4,
+    comment: '实际充值金额',
+  })
+  actualAmount: number;
+
   @Index({ unique: true })
   @Column({ comment: '充值订单号', length: 32 })
   orderNo: string;

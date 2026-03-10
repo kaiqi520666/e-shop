@@ -128,6 +128,7 @@ export class UserRechargeService extends BaseService {
       userId,
       amount,
       orderNo,
+      actualAmount: data.data.actual_amount,
       tradeId: data.data.trade_id,
       status: 0, // 待支付
     });
@@ -148,18 +149,14 @@ export class UserRechargeService extends BaseService {
    */
   async handleNotify(params: {
     trade_id: string;
-    order_id: string;
-    amount: number;
-    actual_amount: number;
-    token: string;
-    signature: string;
     status: number;
+    actual_amount: number;
   }) {
-    const { trade_id, order_id, amount, actual_amount, status } = params;
+    const { trade_id, status, actual_amount } = params;
 
     // 查找充值记录
     const recharge = await this.rechargeEntity.findOne({
-      where: { orderNo: order_id },
+      where: { tradeId: trade_id },
     });
 
     if (!recharge) {
@@ -169,11 +166,6 @@ export class UserRechargeService extends BaseService {
     // 已处理过的订单不再处理
     if (recharge.status !== 0) {
       return 'ok';
-    }
-
-    // 校验金额
-    if (Number(recharge.amount) !== Number(amount)) {
-      return 'amount mismatch';
     }
 
     // 支付成功
@@ -210,7 +202,7 @@ export class UserRechargeService extends BaseService {
         amount: Number(actual_amount),
         balanceBefore,
         balanceAfter: newBalance,
-        remark: `充值成功，订单号: ${order_id}`,
+        remark: `充值成功，订单号: ${recharge.orderNo}`,
         status: 1,
       });
     }
