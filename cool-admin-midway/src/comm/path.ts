@@ -14,7 +14,10 @@ const getKeys = () => {
   return keys;
 };
 const PROD_UPLOAD_PATH = '/www/wwwroot/e-shop/images/upload';
-const isProd = process.env.NODE_ENV === 'production';
+
+const isProd =
+  process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production';
+console.log(isProd, 'isProd path.ts');
 /**
  * 项目数据目录
  */

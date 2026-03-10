@@ -63,7 +63,7 @@
     "build": "cool entity && bundle && mwtsc --cleanOutDir",
     "build:obfuscate": "cool entity && bundle && mwtsc --cleanOutDir && cool obfuscate",
     "pkg": "rimraf build && mkdir build && npm run build && pkg . -d > build/pkg.log",
-    "pm2:start": "pm2 start ./bootstrap.js -i 1 --name cool-admin",
+    "pm2:start": "NODE_ENV=production pm2 start ./bootstrap.js -i 1 --name cool-admin",
     "pm2:stop": "pm2 stop cool-admin & pm2 delete cool-admin"
   },
   "bin": "./bootstrap.js",

@@ -4,7 +4,9 @@ import { ModuleConfig } from '@cool-midway/core';
  * 模块配置
  */
 export default options => {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd =
+    process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production';
+  console.log(isProd, 'isProd config.ts');
   return {
     // 模块名称
     name: '插件模块',
