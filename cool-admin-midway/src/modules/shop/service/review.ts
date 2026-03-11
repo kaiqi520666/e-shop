@@ -42,35 +42,31 @@ export class ShopReviewService extends BaseService {
     };
   }
 
-  async list(goodsId: number, limit = 10) {
-    const reviews = await this.reviewEntity.find({
-      where: { goodsId, status: 1 },
-      order: { createTime: 'DESC' },
-      take: limit,
+  async list(goodsId: number) {
+    const reviews = await this.reviewEntity
+      .createQueryBuilder('r')
+      .leftJoin('user_info', 'u', 'u.id = r.userId')
+      .select([
+        'r.id as id',
+        'r.userId as userId',
+        'r.rating as rating',
+        'r.content as content',
+        'r.likeCount as likeCount',
+        'r.createTime as createTime',
+      ])
+      .addSelect(['u.username as username'])
+      .where('r.goodsId = :goodsId', { goodsId })
+      .andWhere('r.status = 1')
+      .orderBy('r.createTime', 'DESC')
+      .getRawMany();
+
+    //对reviews进行处理,username脱敏,只保留前三位后面用*代替，createTime只保留年月日
+    reviews.forEach((r: any) => {
+      r.username = r.username.slice(0, 3) + '*'.repeat(r.username.length - 3);
+      r.createTime = '';
     });
 
-    const userIds = [...new Set(reviews.map(r => r.userId))];
-    const userInfos = await this.userInfoEntity.find({
-      where: { id: In(userIds) },
-      select: ['id', 'username', 'avatarUrl'],
-    });
-
-    const userMap = new Map(userInfos.map(u => [u.id, u]));
-
-    return reviews.map(r => {
-      const user = userMap.get(r.userId);
-      return {
-        id: r.id,
-        userId: r.userId,
-        username: user?.username || '',
-        avatar: user?.avatarUrl || '',
-        rating: r.rating,
-        content: r.content,
-        images: this.parseJson(r.images, []),
-        likeCount: r.likeCount,
-        createTime: r.createTime,
-      };
-    });
+    return reviews;
   }
 
   async submit(

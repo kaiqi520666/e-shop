@@ -1506,6 +1506,11 @@ declare namespace Eps {
 		amount?: number;
 
 		/**
+		 * 实际充值金额
+		 */
+		actualAmount?: number;
+
+		/**
 		 * 充值订单号
 		 */
 		orderNo?: string;
@@ -1739,6 +1744,11 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface AppConfigPageResponse {
+		pagination: PagePagination;
+		list: AppConfigEntity[];
+	}
+
 	interface BaseSysLogPageResponse {
 		pagination: PagePagination;
 		list: BaseSysLogEntity[];
@@ -1874,9 +1884,62 @@ declare namespace Eps {
 		list: UserWithdrawEntity[];
 	}
 
-	interface AppConfigPageResponse {
-		pagination: PagePagination;
-		list: AppConfigEntity[];
+	interface AppConfig {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<AppConfigEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<AppConfigEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<AppConfigPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
 	}
 
 	interface BaseCoding {
@@ -3683,64 +3746,6 @@ declare namespace Eps {
 		request: Request;
 	}
 
-	interface AppConfig {
-		/**
-		 * 删除
-		 */
-		delete(data?: any): Promise<any>;
-
-		/**
-		 * 修改
-		 */
-		update(data?: any): Promise<any>;
-
-		/**
-		 * 单个信息
-		 */
-		info(data?: any): Promise<AppConfigEntity>;
-
-		/**
-		 * 列表查询
-		 */
-		list(data?: any): Promise<AppConfigEntity[]>;
-
-		/**
-		 * 分页查询
-		 */
-		page(data?: any): Promise<AppConfigPageResponse>;
-
-		/**
-		 * 新增
-		 */
-		add(data?: any): Promise<any>;
-
-		/**
-		 * 权限标识
-		 */
-		permission: {
-			delete: string;
-			update: string;
-			info: string;
-			list: string;
-			page: string;
-			add: string;
-		};
-
-		/**
-		 * 权限状态
-		 */
-		_permission: {
-			delete: boolean;
-			update: boolean;
-			info: boolean;
-			list: boolean;
-			page: boolean;
-			add: boolean;
-		};
-
-		request: Request;
-	}
-
 	interface RequestOptions {
 		url: string;
 		method?: "OPTIONS" | "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "TRACE" | "CONNECT";
@@ -3756,6 +3761,7 @@ declare namespace Eps {
 	type Service = {
 		request: Request;
 
+		app: { config: AppConfig };
 		base: {
 			coding: BaseCoding;
 			comm: BaseComm;
@@ -3793,6 +3799,5 @@ declare namespace Eps {
 			walletlog: UserWalletlog;
 			withdraw: UserWithdraw;
 		};
-		app: { config: AppConfig };
 	};
 }

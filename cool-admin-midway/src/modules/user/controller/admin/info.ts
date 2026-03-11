@@ -8,8 +8,8 @@ import { UserInfoEntity } from '../../entity/info';
   api: ['add', 'delete', 'update', 'info', 'list', 'page'],
   entity: UserInfoEntity,
   pageQueryOp: {
-    fieldEq: ['a.status', 'a.gender', 'a.loginType'],
-    keyWordLikeFields: ['a.nickName', 'a.phone'],
+    fieldEq: ['a.status'],
+    keyWordLikeFields: ['a.username', 'a.phone'],
   },
 })
 export class AdminUserInfoController extends BaseController {}

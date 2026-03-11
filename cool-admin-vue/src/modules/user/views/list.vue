@@ -35,7 +35,7 @@ import { useCrud, useSearch, useTable, useUpsert } from '@cool-vue/crud';
 import { useI18n } from 'vue-i18n';
 import { useCool } from '/@/cool';
 import { reactive } from 'vue';
-import { Plugins } from '/#/crud';
+// import { Plugins } from '/#/crud';
 const { t } = useI18n();
 const { service } = useCool();
 
@@ -131,8 +131,8 @@ const Table = useTable({
 			type: 'op',
 			buttons: ['edit']
 		}
-	],
-	plugins: [Plugins.Table.toTree()]
+	]
+	// plugins: [Plugins.Table.toTree()]
 });
 
 // cl-upsert

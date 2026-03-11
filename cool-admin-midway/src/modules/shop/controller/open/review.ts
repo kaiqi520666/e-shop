@@ -13,10 +13,7 @@ export class OpenShopReviewController extends BaseController {
   }
 
   @Get('/list', { summary: '评价列表' })
-  async getlist(
-    @Query('goodsId') goodsId: number,
-    @Query('limit') limit?: number
-  ) {
-    return this.ok(await this.shopReviewService.list(goodsId, limit));
+  async getlist(@Query('goodsId') goodsId: number) {
+    return this.ok(await this.shopReviewService.list(goodsId));
   }
 }
