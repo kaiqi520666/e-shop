@@ -251,7 +251,7 @@ function buyNow() {
       </div>
 
       <div class="mb-6 rounded-xl border border-border bg-bg-card p-4">
-        <p class="text-sm leading-relaxed text-text-secondary">{{ product.description }}</p>
+        <p class="text-sm leading-relaxed text-text-secondary" v-html="product.description"></p>
       </div>
 
       <!-- Reviews Section -->
