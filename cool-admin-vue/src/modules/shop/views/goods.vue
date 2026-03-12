@@ -192,7 +192,7 @@ const Upsert = useUpsert({
 					options: dict.get('goods_tag')
 				}
 			},
-			required: true,
+
 			span: 12
 		},
 		{
@@ -252,7 +252,7 @@ const Table = useTable({
 			minWidth: 120,
 			dict: options.status
 		},
-		{ label: t('标签，逗号分隔'), prop: 'tags', minWidth: 120 },
+		{ label: t('标签'), prop: 'tags', minWidth: 120 },
 		// { label: t('商品描述'), prop: 'description', minWidth: 120 },
 		{
 			label: t('主图URL'),
