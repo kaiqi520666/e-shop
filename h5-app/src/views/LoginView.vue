@@ -3,24 +3,23 @@ import { ref, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { LogIn, Eye, EyeOff } from 'lucide-vue-next'
-import { delay } from '@/utils'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const toast = inject('toast')
 
-const username = ref('')
+const phone = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const loading = ref(false)
 
 async function handleLogin() {
-  if (!username.value.trim()) return toast.error('请输入用户名')
+  if (!phone.value.trim()) return toast.error('请输入手机号')
   if (!password.value) return toast.error('请输入密码')
 
   loading.value = true
-  const result = await userStore.login(username.value.trim(), password.value)
+  const result = await userStore.login(phone.value.trim(), password.value)
   loading.value = false
 
   if (result.success) {
@@ -41,14 +40,14 @@ async function handleLogin() {
 
       <form @submit.prevent="handleLogin" class="space-y-5">
         <div>
-          <label for="username" class="mb-1.5 block text-sm text-text-secondary">用户名</label>
+          <label for="phone" class="mb-1.5 block text-sm text-text-secondary">手机号</label>
           <input
-            id="username"
-            v-model="username"
+            id="phone"
+            v-model="phone"
             type="text"
             autocomplete="username"
             class="w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-gold"
-            placeholder="请输入用户名"
+            placeholder="请输入手机号"
           />
         </div>
 

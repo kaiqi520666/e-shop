@@ -40,18 +40,18 @@ export class UserLoginService extends BaseService {
 
   /**
    * 密码登录
-   * @param username
+   * @param phone
    * @param password
    */
-  async login(username, password) {
-    const user = await this.userInfoEntity.findOneBy({ username });
+  async login(phone, password) {
+    const user = await this.userInfoEntity.findOneBy({ phone });
 
     if (user && user.password == md5(password)) {
       return this.token({
         id: user.id,
       });
     } else {
-      throw new CoolCommException('账号或密码错误');
+      throw new CoolCommException('手机号或密码错误');
     }
   }
 
@@ -67,31 +67,29 @@ export class UserLoginService extends BaseService {
     password: string,
     inviteCode?: string
   ) {
-    //用户名为A-Za-z0-9_，长度为6-16位
-    if (!/^[A-Za-z0-9_]{6,16}$/.test(username)) {
-      throw new CoolCommException('用户名格式错误');
-    }
-
-    // 2. 校验密码格式
-    if (!/^[A-Za-z0-9_]{6,16}$/.test(password)) {
-      throw new CoolCommException('密码格式错误');
-    }
-
-    // 3. 校验手机号格式
+    // 1. 校验手机号格式
     if (!/^1[3-9]\d{9}$/.test(phone)) {
       throw new CoolCommException('手机号格式错误');
     }
-
-    // 1. 校验用户名唯一性
-    const existUsername = await this.userInfoEntity.findOneBy({ username });
-    if (existUsername) {
-      throw new CoolCommException('用户名已注册');
+    // 2. 校验用户名为中文英文数字，长度为2-10位
+    if (!/^[\u4e00-\u9fa5a-zA-Z0-9]{2,10}$/.test(username)) {
+      throw new CoolCommException('用户名格式错误');
     }
 
-    // 2. 校验手机号唯一性
+    // 3. 校验密码格式
+    if (!/^[A-Za-z0-9_]{6,16}$/.test(password)) {
+      throw new CoolCommException('密码格式错误');
+    }
+    // 1. 校验手机号唯一性
     const exist = await this.userInfoEntity.findOneBy({ phone });
     if (exist) {
       throw new CoolCommException('手机号已注册');
+    }
+
+    // 2. 校验用户名唯一性
+    const existUsername = await this.userInfoEntity.findOneBy({ username });
+    if (existUsername) {
+      throw new CoolCommException('用户名已注册');
     }
 
     // 2. 密码 md5 加密

@@ -26,10 +26,10 @@ export class AppUserAuthController extends BaseController {
   @CoolTag(TagTypes.IGNORE_TOKEN)
   @Post('/login', { summary: '登录' })
   async login(
-    @Body('username') username: string,
+    @Body('phone') phone: string,
     @Body('password') password: string
   ) {
-    return this.ok(await this.userLoginService.login(username, password));
+    return this.ok(await this.userLoginService.login(phone, password));
   }
 
   @CoolTag(TagTypes.IGNORE_TOKEN)

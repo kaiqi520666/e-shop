@@ -19,18 +19,19 @@ const showPassword = ref(false)
 const loading = ref(false)
 
 function validate() {
-  if (!/^[A-Za-z0-9_]{6,16}$/.test(form.value.username.trim())) {
-    toast.error('用户名由数字和字母组成，6-16位，不包含特殊字符')
+  if (!/^1\d{10}$/.test(form.value.phone)) {
+    toast.error('请输入正确的11位手机号')
+    return false
+  }
+  if (!/^[\u4e00-\u9fa5a-zA-Z0-9]{2,10}$/.test(form.value.username.trim())) {
+    toast.error('用户名由中文英文数字组成，2-10位，不包含特殊字符')
     return false
   }
   if (form.value.password.length < 6) {
     toast.error('密码至少6个字符')
     return false
   }
-  if (!/^1\d{10}$/.test(form.value.phone)) {
-    toast.error('请输入正确的11位手机号')
-    return false
-  }
+
   return true
 }
 
@@ -65,6 +66,17 @@ async function handleRegister() {
 
       <form @submit.prevent="handleRegister" class="space-y-4">
         <div>
+          <label for="reg-phone" class="mb-1.5 block text-sm text-text-secondary">手机号</label>
+          <input
+            id="reg-phone"
+            v-model="form.phone"
+            type="tel"
+            autocomplete="tel"
+            class="w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-gold"
+            placeholder="11位手机号"
+          />
+        </div>
+        <div>
           <label for="reg-username" class="mb-1.5 block text-sm text-text-secondary">用户名</label>
           <input
             id="reg-username"
@@ -72,10 +84,9 @@ async function handleRegister() {
             type="text"
             autocomplete="username"
             class="w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-gold"
-            placeholder="用户名由数字和字母组成，6-16位，不包含特殊字符"
+            placeholder="用户名由中文英文数字组成，2-10位，不包含特殊字符"
           />
         </div>
-
         <div>
           <label for="reg-password" class="mb-1.5 block text-sm text-text-secondary">密码</label>
           <div class="relative">
@@ -97,18 +108,6 @@ async function handleRegister() {
               <Eye v-else class="h-5 w-5" />
             </button>
           </div>
-        </div>
-
-        <div>
-          <label for="reg-phone" class="mb-1.5 block text-sm text-text-secondary">手机号</label>
-          <input
-            id="reg-phone"
-            v-model="form.phone"
-            type="tel"
-            autocomplete="tel"
-            class="w-full rounded-lg border border-border bg-bg-card px-4 py-3 text-sm text-text-primary outline-none transition-colors duration-200 placeholder:text-text-muted focus:border-gold"
-            placeholder="11位手机号"
-          />
         </div>
 
         <div>

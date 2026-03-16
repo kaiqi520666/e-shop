@@ -13,6 +13,7 @@ export class UserInfoEntity extends BaseEntity {
   @Column({ comment: '密码', nullable: true, length: 32 })
   password: string;
 
+  @Index({ unique: true })
   @Column({ comment: '用户名', nullable: true, length: 50 })
   username: string;
 
