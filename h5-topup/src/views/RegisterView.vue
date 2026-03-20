@@ -61,7 +61,9 @@
           </div>
         </div>
 
-        <button @click="handleRegister" class="btn-primary-lg mt-6 w-full">注册</button>
+        <button @click="handleRegister" :disabled="isSubmitting" class="btn-primary-lg mt-6 w-full disabled:opacity-70">
+          {{ isSubmitting ? '注册中...' : '注册' }}
+        </button>
       </div>
 
       <div class="mt-6 text-center text-sm text-gray-500">
@@ -93,8 +95,12 @@ const form = ref({
 })
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
+const isSubmitting = ref(false)
 
 const handleRegister = async () => {
+  if (isSubmitting.value) {
+    return
+  }
   if (!form.value.username) {
     toast.warning('请输入用户名')
     return
@@ -116,12 +122,19 @@ const handleRegister = async () => {
     return
   }
 
-  await userStore.updateUser({
-    nickname: form.value.username,
-    phone: form.value.phone,
-    inviteCode: form.value.inviteCode,
-  })
-  toast.success('注册成功')
-  router.push('/')
+  isSubmitting.value = true
+
+  try {
+    await userStore.register(
+      form.value.username.trim(),
+      form.value.phone.trim(),
+      form.value.password,
+      form.value.inviteCode.trim(),
+    )
+    toast.success('注册成功')
+    router.push('/')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>

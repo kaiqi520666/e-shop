@@ -48,6 +48,17 @@ export const useUserStore = defineStore(
       return true
     }
 
+    async function register(username, phone, password, inviteCode = '') {
+      const res = await authApi.register({ username, phone, password, inviteCode })
+      currentUser.value = {
+        ...createEmptyUser(),
+        token: res.data.token,
+        refreshToken: res.data.refreshToken,
+      }
+      await getUserInfo()
+      return true
+    }
+
     async function getUserInfo(configOrSilent = false) {
       const config = normalizeUserInfoConfig(configOrSilent)
       const res = await infoApi.getUserInfo(config)
@@ -109,6 +120,7 @@ export const useUserStore = defineStore(
       logout,
       copyInviteCode,
       login,
+      register,
       getUserInfo,
       refreshUserInfoSilently,
       getTeamMember,
