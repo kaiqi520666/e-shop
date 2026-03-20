@@ -1,0 +1,32 @@
+﻿---
+description: Fine-grained rules for page views, route-aware screens, and README sync
+globs:
+  - src/views/**/*.vue
+  - src/router/index.js
+  - README.md
+alwaysApply: false
+---
+
+# View Layer and Route Documentation Rules
+
+- Keep each screen focused on presentation and page-specific orchestration.
+- Move cross-screen logic to `stores`, `composables`, or shared components when reuse is real.
+- Reuse existing shared UI patterns before creating one-off replacements.
+
+## Route-aware screen changes
+
+- If a view change introduces a new navigation path, route param, query contract, or auth requirement, update `src/router/index.js` and `README.md` together.
+- If a route is removed or renamed, remove or update all related links, redirects, and README route tables in the same task.
+- Do not leave dead links in `BottomBar`, page actions, or profile menus.
+
+## Copy and encoding
+
+- Keep user-facing text in Simplified Chinese unless the task requires otherwise.
+- Do not introduce garbled text, mojibake, or mixed-encoding strings in templates, scripts, or comments.
+- If a file contains garbled copy, prefer fixing the affected copy while editing that screen.
+
+## Screen quality expectations
+
+- For list pages, consider loading, empty, pagination, and error states.
+- For money-related pages, labels must be explicit and formatting must be consistent.
+- For auth-protected screens, keep route guard assumptions aligned with the current login flow.

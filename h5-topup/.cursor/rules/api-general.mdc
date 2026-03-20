@@ -1,0 +1,26 @@
+﻿---
+description: Fine-grained API module rules for Axios usage, response handling, and module boundaries
+globs:
+  - src/api/**/*.js
+alwaysApply: false
+---
+
+# API Module Rules
+
+- Keep all HTTP definitions inside `src/api/`.
+- Use the shared Axios instance from `src/api/index.js`.
+- Prefer adding or extending module files under `src/api/modules/**` instead of placing ad hoc request code in views.
+- Preserve the current response contract:
+  - `code === 1000` means success
+  - failures should surface through the existing global feedback path
+
+## Request design
+
+- Keep API methods thin and explicit.
+- Name methods after business actions, not transport details.
+- Avoid mixing unrelated domains in the same module file.
+
+## Safety
+
+- Any auth-sensitive API change must remain consistent with route guards and persisted login state.
+- Any recharge or withdraw API change should be treated as a money-flow change and requires `npm run lint` plus `npm run build`.

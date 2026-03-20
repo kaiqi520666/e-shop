@@ -1,0 +1,31 @@
+﻿---
+description: Strict rules for recharge and withdraw screens, including validation and required verification
+globs:
+  - src/views/RechargeView.vue
+  - src/views/WithdrawView.vue
+  - src/views/BusinessRechargeView.vue
+alwaysApply: false
+---
+
+# Recharge and Withdraw View Rules
+
+- Treat recharge and withdraw pages as high-risk flows because they involve money, balances, addresses, and status transitions.
+- Do not make silent behavior changes in these screens.
+- Preserve explicit user feedback for:
+  - validation failures
+  - request failures
+  - success confirmation
+  - expired or unavailable states
+
+## Required validation
+
+- Any task that changes recharge or withdraw behavior must run:
+  - `npm run lint`
+  - `npm run build`
+- If either check cannot run, state that explicitly in the final response.
+
+## UX constraints
+
+- Keep amount, balance, exchange rate, and address display clear and unambiguous.
+- Do not weaken validation for wallet addresses, amounts, or confirmation steps.
+- Avoid placeholder success flows when the task is implementing real business behavior.

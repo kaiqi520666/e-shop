@@ -1283,6 +1283,413 @@ declare namespace Eps {
 		[key: string]: any;
 	}
 
+	interface TopupBannerEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 图片URL
+		 */
+		image?: string;
+
+		/**
+		 * 标题
+		 */
+		title?: string;
+
+		/**
+		 * 链接
+		 */
+		link?: string;
+
+		/**
+		 * 排序
+		 */
+		sort?: number;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TopupCategoryEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 分类名称
+		 */
+		name?: string;
+
+		/**
+		 * 分类关键词
+		 */
+		keyword?: string;
+
+		/**
+		 * 描述
+		 */
+		description?: string;
+
+		/**
+		 * 父分类ID
+		 */
+		parentId?: number;
+
+		/**
+		 * 折扣
+		 */
+		discount?: number;
+
+		/**
+		 * 分类图标
+		 */
+		icon?: string;
+
+		/**
+		 * 排序
+		 */
+		sort?: number;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TopupNoticeEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 标题
+		 */
+		title?: string;
+
+		/**
+		 * 内容
+		 */
+		content?: string;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 摘要
+		 */
+		summary?: string;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TopupOrderEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 用户ID
+		 */
+		userId?: BigInt;
+
+		/**
+		 * 订单号
+		 */
+		orderNo?: string;
+
+		/**
+		 * USDT金额
+		 */
+		usdtAmount?: number;
+
+		/**
+		 * RMB金额
+		 */
+		rmbAmount?: number;
+
+		/**
+		 * 订单状态
+		 */
+		status?: number;
+
+		/**
+		 * 手机号
+		 */
+		phone?: string;
+
+		/**
+		 * 姓名
+		 */
+		name?: string;
+
+		/**
+		 * 银行
+		 */
+		bank?: string;
+
+		/**
+		 * 支行
+		 */
+		branch?: string;
+
+		/**
+		 * 卡号
+		 */
+		cardNo?: string;
+
+		/**
+		 * TG
+		 */
+		tg?: string;
+
+		/**
+		 * 身份证号
+		 */
+		idCard?: string;
+
+		/**
+		 * 详细地址
+		 */
+		address?: string;
+
+		/**
+		 * 分类ID
+		 */
+		categoryId?: BigInt;
+
+		/**
+		 * 户号
+		 */
+		accountNo?: string;
+
+		/**
+		 * 折扣
+		 */
+		discount?: number;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 用户名
+		 */
+		username?: string;
+
+		/**
+		 * 分类名称
+		 */
+		categoryName?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TopupRechargeEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 用户ID
+		 */
+		userId?: BigInt;
+
+		/**
+		 * 订单号
+		 */
+		orderNo?: string;
+
+		/**
+		 * Epusdt交易号
+		 */
+		tradeId?: string;
+
+		/**
+		 * 金额
+		 */
+		amount?: number;
+
+		/**
+		 * 实际金额
+		 */
+		actualAmount?: number;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * Token
+		 */
+		token?: string;
+
+		/**
+		 * 过期时间
+		 */
+		expirationTime?: BigInt;
+
+		/**
+		 * 支付URL
+		 */
+		paymentUrl?: string;
+
+		/**
+		 * 区块交易ID
+		 */
+		blockTransactionId?: string;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 用户名
+		 */
+		username?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
+	interface TopupWithdrawEntity {
+		/**
+		 * ID
+		 */
+		id?: number;
+
+		/**
+		 * 用户ID
+		 */
+		userId?: BigInt;
+
+		/**
+		 * 订单号
+		 */
+		orderNo?: string;
+
+		/**
+		 * 金额
+		 */
+		amount?: number;
+
+		/**
+		 * 实际金额
+		 */
+		actualAmount?: number;
+
+		/**
+		 * 手续费
+		 */
+		fee?: number;
+
+		/**
+		 * 状态
+		 */
+		status?: number;
+
+		/**
+		 * 备注
+		 */
+		remark?: string;
+
+		/**
+		 * 提现地址
+		 */
+		address?: string;
+
+		/**
+		 * 创建时间
+		 */
+		createTime?: string;
+
+		/**
+		 * 更新时间
+		 */
+		updateTime?: string;
+
+		/**
+		 * 用户名
+		 */
+		username?: string;
+
+		/**
+		 * 任意键值
+		 */
+		[key: string]: any;
+	}
+
 	interface UserAddressEntity {
 		/**
 		 * ID
@@ -1847,6 +2254,36 @@ declare namespace Eps {
 	interface TaskInfoPageResponse {
 		pagination: PagePagination;
 		list: TaskInfoEntity[];
+	}
+
+	interface TopupCategoryPageResponse {
+		pagination: PagePagination;
+		list: TopupCategoryEntity[];
+	}
+
+	interface TopupOrderPageResponse {
+		pagination: PagePagination;
+		list: TopupOrderEntity[];
+	}
+
+	interface TopupRechargePageResponse {
+		pagination: PagePagination;
+		list: TopupRechargeEntity[];
+	}
+
+	interface TopupWithdrawPageResponse {
+		pagination: PagePagination;
+		list: TopupWithdrawEntity[];
+	}
+
+	interface TopupNoticePageResponse {
+		pagination: PagePagination;
+		list: TopupNoticeEntity[];
+	}
+
+	interface TopupBannerPageResponse {
+		pagination: PagePagination;
+		list: TopupBannerEntity[];
 	}
 
 	interface UserAddressPageResponse {
@@ -3340,6 +3777,348 @@ declare namespace Eps {
 		request: Request;
 	}
 
+	interface TopupCategory {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupCategoryEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupCategoryEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupCategoryPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TopupOrder {
+		/**
+		 * success
+		 */
+		success(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupOrderEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupOrderEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupOrderPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			success: string;
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			success: boolean;
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TopupRecharge {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupRechargeEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupRechargeEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupRechargePageResponse>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: { delete: string; update: string; info: string; list: string; page: string };
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TopupWithdraw {
+		/**
+		 * success
+		 */
+		success(data?: any): Promise<any>;
+
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * cancel
+		 */
+		cancel(data?: any): Promise<any>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupWithdrawPageResponse>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupWithdrawEntity[]>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupWithdrawEntity>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			success: string;
+			delete: string;
+			cancel: string;
+			page: string;
+			list: string;
+			info: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			success: boolean;
+			delete: boolean;
+			cancel: boolean;
+			page: boolean;
+			list: boolean;
+			info: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TopupNotice {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupNoticeEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupNoticeEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupNoticePageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
+	interface TopupBanner {
+		/**
+		 * 删除
+		 */
+		delete(data?: any): Promise<any>;
+
+		/**
+		 * 修改
+		 */
+		update(data?: any): Promise<any>;
+
+		/**
+		 * 单个信息
+		 */
+		info(data?: any): Promise<TopupBannerEntity>;
+
+		/**
+		 * 列表查询
+		 */
+		list(data?: any): Promise<TopupBannerEntity[]>;
+
+		/**
+		 * 分页查询
+		 */
+		page(data?: any): Promise<TopupBannerPageResponse>;
+
+		/**
+		 * 新增
+		 */
+		add(data?: any): Promise<any>;
+
+		/**
+		 * 权限标识
+		 */
+		permission: {
+			delete: string;
+			update: string;
+			info: string;
+			list: string;
+			page: string;
+			add: string;
+		};
+
+		/**
+		 * 权限状态
+		 */
+		_permission: {
+			delete: boolean;
+			update: boolean;
+			info: boolean;
+			list: boolean;
+			page: boolean;
+			add: boolean;
+		};
+
+		request: Request;
+	}
+
 	interface UserAddress {
 		/**
 		 * 删除
@@ -3790,6 +4569,14 @@ declare namespace Eps {
 		};
 		space: { info: SpaceInfo; type: SpaceType };
 		task: { info: TaskInfo };
+		topup: {
+			category: TopupCategory;
+			order: TopupOrder;
+			recharge: TopupRecharge;
+			withdraw: TopupWithdraw;
+			notice: TopupNotice;
+			banner: TopupBanner;
+		};
 		user: {
 			address: UserAddress;
 			commission: UserCommission;

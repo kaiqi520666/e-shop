@@ -1,0 +1,48 @@
+﻿---
+description: Requested when making non-trivial changes to validate workflow, docs, and quality checks
+alwaysApply: false
+---
+
+# Workflow and Quality Rules
+
+- Before making changes, inspect the relevant files instead of assuming framework defaults.
+- Prefer small, targeted edits that fit the current codebase.
+- Avoid adding new dependencies unless the benefit is clear and project-specific.
+
+## When changing behavior
+
+- Update docs if the behavior, route structure, startup flow, or deployment assumptions change.
+- Preserve existing user-facing patterns unless the task explicitly asks for redesign.
+- Call out mismatches between docs and implementation rather than silently ignoring them.
+- For any routing change, update `README.md` in the same change set.
+
+## Validation
+
+- After non-trivial code changes, run the relevant checks when possible:
+  - `npm run lint`
+  - `npm run build`
+- Any change touching recharge or withdraw flows must run both `npm run lint` and `npm run build` before completion.
+- Recharge or withdraw flow changes include work in:
+  - `src/views/RechargeView.vue`
+  - `src/views/WithdrawView.vue`
+  - `src/views/BusinessRechargeView.vue`
+  - `src/stores/recharge.js`
+  - `src/stores/withdraw.js`
+  - `src/api/modules/topup/recharge.api.js`
+  - `src/api/modules/topup/withdraw.api.js`
+- If a check cannot be run, say so explicitly.
+
+## Code review mindset
+
+- Watch for:
+  - auth regressions
+  - broken route guards
+  - duplicated state
+  - missing loading or error handling
+  - UI inconsistencies across mobile screens
+  - money or order-state formatting mistakes
+
+## Scope control
+
+- Do not rewrite large parts of the app when a smaller fix is enough.
+- If the task touches only one screen, keep unrelated files stable unless they must change.

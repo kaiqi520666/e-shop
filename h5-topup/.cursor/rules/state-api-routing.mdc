@@ -1,0 +1,50 @@
+﻿---
+description: Rules for Pinia stores, Axios APIs, caching, and routing in h5-topup
+globs:
+  - src/api/**/*.js
+  - src/stores/**/*.js
+  - src/composables/**/*.js
+  - src/utils/**/*.js
+  - src/router/**/*.js
+  - src/main.js
+alwaysApply: false
+---
+
+# State, API, and Routing Rules
+
+- Keep a clear layering model:
+  - `src/api/` defines HTTP requests
+  - `src/stores/` manages app state and domain actions
+  - `src/composables/` contains reusable view logic
+  - `src/utils/` contains generic helpers
+- Do not bypass existing layers without a clear reason.
+
+## API conventions
+
+- Use the shared Axios instance from `src/api/index.js`.
+- Keep the `/api` base URL convention unless the task is explicitly about environment or deployment changes.
+- Respect the current response contract:
+  - success means `code === 1000`
+  - errors should be surfaced through the existing global feedback mechanism
+- Prefer adding module methods under `src/api/modules/**` instead of scattering inline requests through views.
+
+## Store conventions
+
+- Follow existing Pinia patterns already present in the project.
+- Persist only data that truly needs to survive refreshes.
+- Do not duplicate the same source of truth across multiple stores unless the task requires deliberate denormalization.
+- When adding data-fetching helpers, prefer the existing `useCache` pattern for low-frequency config or catalog data.
+
+## Routing conventions
+
+- Add routes in `src/router/index.js` and keep naming explicit.
+- Respect the current auth guard behavior:
+  - `/login` and `/register` are public
+  - other routes currently require login
+- If routes are added, removed, renamed, or their access rules change, update `README.md` in the same task.
+- Do not leave route definitions and `README.md` route documentation out of sync.
+
+## Authentication
+
+- Token handling is currently tied to the persisted `user` store and the Axios interceptor.
+- Any auth change must keep request interception, route guarding, and logout behavior consistent.

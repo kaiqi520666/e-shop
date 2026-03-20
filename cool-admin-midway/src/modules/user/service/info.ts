@@ -32,10 +32,19 @@ export class UserInfoService extends BaseService {
   async updatePerson(id, param) {
     const info = await this.person(id);
     if (!info) throw new CoolCommException('用户不存在');
-    try {
-      return await this.userInfoEntity.update({ id }, param);
-    } catch (err) {
-      throw new CoolCommException('更新失败，参数错误或者手机号已存在');
+
+    // 只允许更新白名单字段
+    const whiteList = ['avatarUrl', 'walletAddress'];
+    const keys = Object.keys(param || {});
+    if (!keys.length || keys.some(key => !whiteList.includes(key))) {
+      throw new CoolCommException('更新失败，参数错误');
     }
+
+    const updateData = keys.reduce<Record<string, any>>((acc, key) => {
+      acc[key] = param[key];
+      return acc;
+    }, {});
+
+    return await this.userInfoEntity.update({ id }, updateData);
   }
 }

@@ -1,5 +1,4 @@
 import { Provide, Inject } from '@midwayjs/core';
-import { HttpClient } from '@midwayjs/core';
 import {
   BaseService,
   CoolCommException,
@@ -7,13 +6,16 @@ import {
 } from '@cool-midway/core';
 import { InjectEntityModel } from '@midwayjs/typeorm';
 import { Equal, Repository, QueryRunner } from 'typeorm';
-import * as md5 from 'md5';
 import { UserRechargeEntity } from '../entity/recharge';
 import { UserInfoEntity } from '../entity/info';
 import { UserTransactionService } from './transaction';
 import { AppConfigEntity } from '../../app/entity/config';
 import { HttpService } from '@midwayjs/axios';
-
+import {
+  EPUSDT_API_URL,
+  EPUSDT_CHECK_URL,
+  generateSignature,
+} from '../../../utils';
 /**
  * 用户充值
  */
@@ -37,38 +39,11 @@ export class UserRechargeService extends BaseService {
   @Inject()
   ctx;
 
-  // Epusdt 配置
-  private readonly EPUSDT_API_URL =
-    'https://upay.fdshop.top/api/v1/order/create-transaction';
-  private readonly EPUSDT_TOKEN = 'epusdt_token';
-
-  private readonly EPUSDT_CHECK_URL =
-    'https://upay.fdshop.top/pay/check-status/';
-
   private readonly EPUSDT_RECHARGE_NOTIFY_URL =
     'https://api.fdshop.top/open/user/recharge/notify';
 
   private readonly EPUSDT_ORDER_NOTIFY_URL =
     'https://api.fdshop.top/open/shop/order/notify';
-  /**
-   * 生成签名
-   */
-  private generateSignature(params: Record<string, any>): string {
-    const sortedKeys = Object.keys(params).sort();
-    const signStr = sortedKeys
-      .filter(
-        key =>
-          params[key] !== '' &&
-          params[key] !== null &&
-          params[key] !== undefined
-      )
-      .map(key => `${key}=${params[key]}`)
-      .join('&');
-    console.log('signStr', signStr);
-    const signature = md5(signStr + this.EPUSDT_TOKEN);
-    console.log('signature', signature);
-    return signature;
-  }
 
   /**
    * 创建 Epusdt 充值订单
@@ -107,10 +82,10 @@ export class UserRechargeService extends BaseService {
     };
 
     // 生成签名
-    const signature = this.generateSignature(params);
+    const signature = generateSignature(params);
 
     // 发送请求
-    const result = await this.httpService.post(this.EPUSDT_API_URL, {
+    const result = await this.httpService.post(EPUSDT_API_URL, {
       amount,
       notify_url: notifyUrl,
       order_id: orderNo,
@@ -211,7 +186,7 @@ export class UserRechargeService extends BaseService {
   }
 
   async checkTransaction(tradeId: string) {
-    const result = await this.httpService.get(this.EPUSDT_CHECK_URL + tradeId);
+    const result = await this.httpService.get(EPUSDT_CHECK_URL + tradeId);
     return result.data.data;
   }
 

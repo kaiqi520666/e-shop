@@ -1,0 +1,28 @@
+﻿---
+description: Strict API rules for topup money-flow modules such as recharge, withdraw, orders, and transactions
+globs:
+  - src/api/modules/topup/**/*.js
+  - src/stores/recharge.js
+  - src/stores/withdraw.js
+  - src/stores/order.js
+  - src/stores/transaction.js
+alwaysApply: false
+---
+
+# Topup and Money Flow Rules
+
+- These files affect money-related business flows and should be treated as high-risk.
+- Prefer explicit request and response handling over hidden side effects.
+- Do not change field names, amount semantics, token usage, or status expectations casually.
+
+## Required verification
+
+- If these files change in a behaviorally meaningful way, run:
+  - `npm run lint`
+  - `npm run build`
+
+## Consistency rules
+
+- Keep store actions, API modules, and page expectations aligned.
+- If a response shape changes, update every affected caller in the same task.
+- If recharge or withdraw flow behavior changes, verify the related user-facing copy still matches the actual business logic.

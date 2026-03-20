@@ -6,33 +6,42 @@ import * as entity3 from './modules/user/entity/recharge';
 import * as entity4 from './modules/user/entity/info';
 import * as entity5 from './modules/user/entity/commission';
 import * as entity6 from './modules/user/entity/address';
-import * as entity7 from './modules/task/entity/log';
-import * as entity8 from './modules/task/entity/info';
-import * as entity9 from './modules/space/entity/type';
-import * as entity10 from './modules/space/entity/info';
-import * as entity11 from './modules/shop/entity/review';
-import * as entity12 from './modules/shop/entity/orderItem';
-import * as entity13 from './modules/shop/entity/order';
-import * as entity14 from './modules/shop/entity/goods';
-import * as entity15 from './modules/shop/entity/category';
-import * as entity16 from './modules/shop/entity/cart';
-import * as entity17 from './modules/shop/entity/banner';
-import * as entity18 from './modules/recycle/entity/data';
-import * as entity19 from './modules/plugin/entity/info';
-import * as entity20 from './modules/dict/entity/type';
-import * as entity21 from './modules/dict/entity/info';
-import * as entity22 from './modules/demo/entity/goods';
-import * as entity23 from './modules/base/entity/base';
-import * as entity24 from './modules/base/entity/sys/user_role';
-import * as entity25 from './modules/base/entity/sys/user';
-import * as entity26 from './modules/base/entity/sys/role_menu';
-import * as entity27 from './modules/base/entity/sys/role_department';
-import * as entity28 from './modules/base/entity/sys/role';
-import * as entity29 from './modules/base/entity/sys/param';
-import * as entity30 from './modules/base/entity/sys/menu';
-import * as entity31 from './modules/base/entity/sys/log';
-import * as entity32 from './modules/base/entity/sys/department';
-import * as entity33 from './modules/base/entity/sys/conf';
+import * as entity7 from './modules/topup/entity/withdraw';
+import * as entity8 from './modules/topup/entity/transaction';
+import * as entity9 from './modules/topup/entity/recharge';
+import * as entity10 from './modules/topup/entity/order';
+import * as entity11 from './modules/topup/entity/notice';
+import * as entity12 from './modules/topup/entity/category';
+import * as entity13 from './modules/topup/entity/banner';
+import * as entity14 from './modules/task/entity/log';
+import * as entity15 from './modules/task/entity/info';
+import * as entity16 from './modules/space/entity/type';
+import * as entity17 from './modules/space/entity/info';
+import * as entity18 from './modules/shop/entity/review';
+import * as entity19 from './modules/shop/entity/orderItem';
+import * as entity20 from './modules/shop/entity/order';
+import * as entity21 from './modules/shop/entity/goods';
+import * as entity22 from './modules/shop/entity/category';
+import * as entity23 from './modules/shop/entity/cart';
+import * as entity24 from './modules/shop/entity/banner';
+import * as entity25 from './modules/recycle/entity/data';
+import * as entity26 from './modules/plugin/entity/info';
+import * as entity27 from './modules/notice/entity/news';
+import * as entity28 from './modules/dict/entity/type';
+import * as entity29 from './modules/dict/entity/info';
+import * as entity30 from './modules/demo/entity/goods';
+import * as entity31 from './modules/base/entity/base';
+import * as entity32 from './modules/base/entity/sys/user_role';
+import * as entity33 from './modules/base/entity/sys/user';
+import * as entity34 from './modules/base/entity/sys/role_menu';
+import * as entity35 from './modules/base/entity/sys/role_department';
+import * as entity36 from './modules/base/entity/sys/role';
+import * as entity37 from './modules/base/entity/sys/param';
+import * as entity38 from './modules/base/entity/sys/menu';
+import * as entity39 from './modules/base/entity/sys/log';
+import * as entity40 from './modules/base/entity/sys/department';
+import * as entity41 from './modules/base/entity/sys/conf';
+import * as entity42 from './modules/app/entity/config';
 export const entities = [
   ...Object.values(entity0),
   ...Object.values(entity1),
@@ -68,4 +77,13 @@ export const entities = [
   ...Object.values(entity31),
   ...Object.values(entity32),
   ...Object.values(entity33),
+  ...Object.values(entity34),
+  ...Object.values(entity35),
+  ...Object.values(entity36),
+  ...Object.values(entity37),
+  ...Object.values(entity38),
+  ...Object.values(entity39),
+  ...Object.values(entity40),
+  ...Object.values(entity41),
+  ...Object.values(entity42),
 ];

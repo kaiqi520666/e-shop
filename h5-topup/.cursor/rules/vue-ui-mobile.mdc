@@ -1,0 +1,46 @@
+---
+description: Rules for Vue SFCs, mobile H5 UI, and Tailwind styling in this project
+globs:
+  - src/views/**/*.vue
+  - src/components/**/*.vue
+  - src/App.vue
+  - src/assets/main.css
+alwaysApply: false
+---
+
+# Vue UI and Mobile H5 Rules
+
+- Use Vue 3 Composition API with `<script setup>` for SFCs.
+- Match the existing code style: JavaScript SFCs, not TypeScript SFCs.
+- Keep components focused. Extract shared UI only when duplication is meaningful across multiple screens.
+- Reuse existing shared components before creating new ones:
+  - `PageHeader`
+  - `SectionTitle`
+  - `AppDivider`
+  - `TabBar`
+  - `GlowCard`
+  - `EmptyState`
+  - `AppToast`
+  - `GlobalLoading`
+  - `GlobalConfirm`
+
+## Styling
+
+- Prefer existing utility classes and semantic helper classes from `src/assets/main.css` before inventing new patterns.
+- Preserve the established visual system:
+  - `#0e1316` / dark background
+  - `#00FFA3` primary accent
+  - soft borders like `#334155`
+  - translucent panels and blur effects
+- Mobile-first design is required:
+  - prioritize touch-friendly controls
+  - do not rely on hover-only interactions
+  - prefer `active` states for important interactions
+- Keep layouts performant and simple. Avoid heavy animation logic unless it is already part of the screen's design language.
+
+## UX expectations
+
+- Every stateful screen should consider loading, empty, and error states.
+- Avoid silent failures. If an action can fail, surface user feedback clearly.
+- For money, balance, rate, and order status information, prefer explicit labels and predictable formatting.
+- Avoid adding desktop-only patterns or overly dense layouts that hurt mobile usability.

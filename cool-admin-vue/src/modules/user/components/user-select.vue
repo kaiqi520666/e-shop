@@ -8,6 +8,7 @@
 		:columns="columns"
 		:multiple="multiple"
 		:dict="{ text: 'username', img: '' }"
+		:disabled="disabled"
 	/>
 </template>
 
@@ -22,7 +23,8 @@ import { useI18n } from 'vue-i18n';
 
 const props = defineProps({
 	modelValue: null,
-	multiple: Boolean
+	multiple: Boolean,
+	disabled: Boolean
 });
 
 const { service } = useCool();

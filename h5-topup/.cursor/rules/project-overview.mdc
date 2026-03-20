@@ -1,0 +1,45 @@
+﻿---
+description: Project-wide context for the h5-topup H5 recharge application
+alwaysApply: true
+---
+
+# h5-topup Project Overview
+
+- This repository is the H5 frontend for a recharge/e-commerce flow built with Vue 3, Vite, Pinia, Vue Router, Tailwind CSS 4, Axios, and lucide-vue-next.
+- The product is mobile-first and centered around recharge, wallet, withdrawal, records, notices, orders, and agent/invite flows.
+- The codebase currently uses JavaScript, not TypeScript. Do not introduce TypeScript-only patterns unless explicitly requested.
+- Keep changes aligned with the existing visual language:
+  - dark background
+  - neon green as the primary accent
+  - glassmorphism cards
+  - mobile-friendly spacing and tap targets
+- Prefer concise, maintainable code over large abstractions.
+
+## Key project facts
+
+- Entry: `src/main.js`
+- Root app shell: `src/App.vue`
+- Router: `src/router/index.js`
+- Global styles: `src/assets/main.css`
+- API layer: `src/api/`
+- State management: `src/stores/`
+- Views: `src/views/`
+- Shared UI components: `src/components/`
+
+## Current runtime conventions
+
+- Vite dev server proxies `/api` to `http://127.0.0.1:8001` and strips the `/api` prefix.
+- The app currently uses `createWebHistory`, so deployment requires SPA history fallback.
+- Login state is centered on `userStore.currentUser` and token-based auth.
+- The API success convention is `code === 1000`.
+- Pinia persistence is enabled through `pinia-plugin-persistedstate`.
+
+## Editing expectations
+
+- Preserve the existing directory structure and module boundaries unless a refactor is explicitly requested.
+- Favor local consistency with the current project over generic framework advice.
+- Keep user-facing copy in Chinese unless the task explicitly requires another language.
+- Preserve UTF-8 encoding and avoid introducing garbled text.
+- Never submit or generate files with mojibake, garbled Chinese, or mixed/unknown encodings.
+- If an edited file already contains garbled text, fix the encoding or explicitly clean the affected copy instead of spreading the issue to new code.
+- If behavior changes, update the relevant docs such as `README.md`.
